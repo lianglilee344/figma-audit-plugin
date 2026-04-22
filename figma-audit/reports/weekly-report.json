@@ -1,0 +1,45 @@
+{
+  "week": "2026-04-14 ~ 2026-04-20",
+  "generatedAt": "2026-04-22 04:17",
+  "files": [
+    {
+      "id": "bGOZM3sHXPmhRb5AiDnv2A",
+      "name": "【猜你喜欢】AI场景化导购卡",
+      "figmaUrl": "https://www.figma.com/design/bGOZM3sHXPmhRb5AiDnv2A",
+      "scannedAt": "2026-04-21 14:25",
+      "issues": {
+        "component": [
+          {
+            "name": "自定义圆形按钮",
+            "path": "猜你喜欢卡 / 操作区 / 自定义圆形按钮",
+            "suggestion": "主按钮 / Primary-MD",
+            "confidence": "high",
+            "nodeId": "3851-12901",
+            "imageUrl": null
+          },
+          {
+            "name": "标签容器",
+            "path": "猜你喜欢卡 / 标签区 / 标签容器",
+            "suggestion": "标签 / 默认-SM",
+            "confidence": "mid",
+            "nodeId": "3851-12934",
+            "imageUrl": null
+          }
+        ],
+        "style": [
+          {
+            "name": "价格文本",
+            "path": "猜你喜欢卡 / 价格区 / 价格文本",
+            "kind": "fill-color",
+            "detail": "#ff3b30 未绑定颜色样式",
+            "suggest": "语义/错误色",
+            "confidence": "high",
+            "nodeId": "3851-13010",
+            "imageUrl": null
+          }
+        ],
+        "layout": []
+      }
+    }
+  ]
+}

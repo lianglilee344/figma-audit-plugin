@@ -534,7 +534,11 @@ main {
 <script>
 // ── Data ──────────────────────────────────────────────────────────────────
 
-const REPORT = {
+// REPORT is loaded asynchronously from weekly-report.json (see boot section below).
+// Falls back to embedded mock data when running locally without a server.
+let REPORT = null;
+
+const REPORT_MOCK = {
   week: '2026-04-14 ~ 2026-04-20',
   generatedAt: '2026-04-21 10:00',
   files: [
@@ -654,26 +658,6 @@ function countUp(el, target, duration) {
 function esc(s) {
   return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
-
-// ── Init ──────────────────────────────────────────────────────────────────
-
-document.getElementById('headerWeek').textContent = REPORT.week;
-document.getElementById('headerMeta').textContent = '生成于 ' + REPORT.generatedAt;
-
-// Build sidebar
-const sidebarList = document.getElementById('sidebarList');
-REPORT.files.forEach(f => {
-  const t = total(f);
-  const div = document.createElement('div');
-  div.className = 'nav-item';
-  div.id = 'nav-' + f.id;
-  div.onclick = () => showDetail(f.id);
-  div.innerHTML = `
-    <span class="nav-name">${esc(f.name)}</span>
-    <span class="nav-badge ${navBadgeClass(t)}">${t}</span>
-  `;
-  sidebarList.appendChild(div);
-});
 
 // ── Overview ──────────────────────────────────────────────────────────────
 
@@ -940,7 +924,63 @@ function setActiveNav(id) {
 }
 
 // ── Boot ──────────────────────────────────────────────────────────────────
-showOverview();
+
+function renderLoadingState() {
+  document.getElementById('main').innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:60vh;gap:16px;color:var(--text-3)">
+      <div style="width:32px;height:32px;border:2px solid var(--border);border-top-color:var(--text-2);border-radius:50%;animation:spin .8s linear infinite"></div>
+      <div style="font-size:13px">加载报告数据…</div>
+    </div>
+    <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+  `;
+}
+
+function renderErrorState(msg) {
+  document.getElementById('main').innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:60vh;gap:12px;color:var(--text-3)">
+      <div style="font-size:28px;opacity:.4">⚠</div>
+      <div style="font-size:13px;color:var(--text-2)">${esc(msg)}</div>
+      <div style="font-size:11px">请确认 weekly-report.json 已放置在同目录下</div>
+    </div>
+  `;
+}
+
+function initApp(report) {
+  REPORT = report;
+  document.getElementById('headerWeek').textContent = REPORT.week;
+  document.getElementById('headerMeta').textContent = '生成于 ' + REPORT.generatedAt;
+
+  const sidebarList = document.getElementById('sidebarList');
+  sidebarList.innerHTML = '';
+  REPORT.files.forEach(f => {
+    const t = total(f);
+    const div = document.createElement('div');
+    div.className = 'nav-item';
+    div.id = 'nav-' + f.id;
+    const sc = severityClass(t);
+    div.innerHTML = `
+      <div class="nav-item-name">${esc(f.name)}</div>
+      <span class="nav-badge ${sc}">${t === 0 ? '✓' : t}</span>
+    `;
+    div.onclick = () => showDetail(f.id);
+    sidebarList.appendChild(div);
+  });
+
+  showOverview();
+}
+
+// Try to load weekly-report.json; fall back to embedded mock data
+renderLoadingState();
+fetch('./weekly-report.json')
+  .then(r => {
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    return r.json();
+  })
+  .then(data => initApp(data))
+  .catch(() => {
+    // No server or file not found — use mock data so local preview still works
+    initApp(REPORT_MOCK);
+  });
 </script>
 </body>
 </html>
