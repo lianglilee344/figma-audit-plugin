@@ -148,6 +148,57 @@ aside {
 .nav-badge.clean { background: var(--green-dim); color: var(--green); }
 .nav-divider { height: 1px; background: var(--border); margin: 10px 20px; }
 
+/* ── Week switcher ────────────────────────────────────────────────────── */
+.week-section {
+  padding: 0 0 4px;
+}
+.week-section-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  padding: 0 20px 8px;
+  display: block;
+}
+.week-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 20px;
+  cursor: pointer;
+  gap: 8px;
+  transition: background var(--transition);
+  border-left: 2px solid transparent;
+}
+.week-item:hover { background: var(--bg-hover); }
+.week-item.active {
+  background: var(--bg-raise);
+  border-left-color: var(--text-1);
+}
+.week-item-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-2);
+  font-family: var(--ff-mono);
+  letter-spacing: -.01em;
+}
+.week-item.active .week-item-label { color: var(--text-1); }
+.week-item-tag {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--blue);
+  background: var(--blue-dim);
+  border-radius: 3px;
+  padding: 1px 5px;
+  letter-spacing: .04em;
+}
+.week-item-count {
+  font-size: 10px;
+  color: var(--text-3);
+  font-family: var(--ff-mono);
+}
+
 /* ── Main ────────────────────────────────────────────────────────────── */
 main {
   padding: 36px 40px 60px;
@@ -518,7 +569,14 @@ main {
 
   <!-- SIDEBAR -->
   <aside>
-    <div class="nav-label">本周设计稿</div>
+    <!-- Week history switcher -->
+    <div class="week-section">
+      <span class="week-section-label">周报历史</span>
+      <div id="weekList"></div>
+    </div>
+    <div class="nav-divider"></div>
+    <!-- Per-week file list -->
+    <div class="nav-label" id="weekFilesLabel">本周设计稿</div>
     <div id="sidebarOverview" class="nav-item active" onclick="showOverview()">
       <span class="nav-name">总览</span>
     </div>
@@ -532,13 +590,18 @@ main {
 </div>
 
 <script>
-// ── Data ──────────────────────────────────────────────────────────────────
+// ── Mock data (multi-week) ─────────────────────────────────────────────────
 
-// REPORT is loaded asynchronously from weekly-report.json (see boot section below).
-// Falls back to embedded mock data when running locally without a server.
-let REPORT = null;
+const MOCK_WEEK_LIST = [
+  { id: '2026-04-20', label: '04.20', week: '2026-04-14 ~ 2026-04-20', isCurrent: true },
+  { id: '2026-04-13', label: '04.13', week: '2026-04-07 ~ 2026-04-13', isCurrent: false },
+  { id: '2026-04-06', label: '04.06', week: '2026-03-31 ~ 2026-04-06', isCurrent: false },
+];
 
-const REPORT_MOCK = {
+const MOCK_DATA = {};
+
+// Current week
+MOCK_DATA['2026-04-20'] = {
   week: '2026-04-14 ~ 2026-04-20',
   generatedAt: '2026-04-21 10:00',
   files: [
@@ -622,6 +685,104 @@ const REPORT_MOCK = {
     },
   ],
 };
+
+// Previous week
+MOCK_DATA['2026-04-13'] = {
+  week: '2026-04-07 ~ 2026-04-13',
+  generatedAt: '2026-04-14 09:30',
+  files: [
+    {
+      id: 'g1',
+      name: '【商城首页】Tab 栏视觉优化',
+      figmaUrl: 'https://www.figma.com/design/AaBbCcDdEeFf001',
+      scannedAt: '2026-04-13 16:20',
+      issues: {
+        component: [
+          { name: '底部导航图标', path: '首页 / Tab 栏 / 导航图标', suggestion: '图标 / nav-home', confidence: 'high', nodeId: '111-20001' },
+          { name: '搜索框容器', path: '首页 / 搜索区 / 搜索框', suggestion: '输入框 / 搜索-MD', confidence: 'mid', nodeId: '111-20020' },
+        ],
+        style: [
+          { name: '促销标签文字', path: '首页 / Banner / 促销标签', kind: 'fill-color', detail: '#E5004F 未绑定颜色样式', suggest: '品牌/大促红', nodeId: '111-20040' },
+        ],
+        layout: [
+          { name: '安全区占位', path: '首页 / 底部安全区', kind: '无意义嵌套', detail: '无子元素，建议删除', nodeId: '111-20060' },
+        ],
+      },
+    },
+    {
+      id: 'g2',
+      name: '【购物车】空状态改版',
+      figmaUrl: 'https://www.figma.com/design/AaBbCcDdEeFf002',
+      scannedAt: '2026-04-13 14:05',
+      issues: {
+        component: [
+          { name: '空状态插画容器', path: '购物车 / 空状态 / 插画区', suggestion: '空状态 / 购物车', confidence: 'high', nodeId: '222-30001' },
+        ],
+        style: [],
+        layout: [],
+      },
+    },
+    {
+      id: 'g3',
+      name: '【结算页】优惠券展示',
+      figmaUrl: 'https://www.figma.com/design/AaBbCcDdEeFf003',
+      scannedAt: '2026-04-12 18:45',
+      issues: { component: [], style: [], layout: [] },
+    },
+  ],
+};
+
+// Two weeks ago
+MOCK_DATA['2026-04-06'] = {
+  week: '2026-03-31 ~ 2026-04-06',
+  generatedAt: '2026-04-07 10:15',
+  files: [
+    {
+      id: 'h1',
+      name: '【商品详情】主图区重构',
+      figmaUrl: 'https://www.figma.com/design/AaBbCcDdEeFf004',
+      scannedAt: '2026-04-06 11:30',
+      issues: {
+        component: [
+          { name: '收藏按钮', path: '商品详情 / 操作栏 / 收藏', suggestion: '图标按钮 / 收藏-MD', confidence: 'high', nodeId: '333-40001' },
+          { name: '加购按钮', path: '商品详情 / 底部 / 加购', suggestion: '主按钮 / 大促-LG', confidence: 'high', nodeId: '333-40020' },
+          { name: 'SKU 标签', path: '商品详情 / SKU 区 / 标签', suggestion: '标签 / 属性-SM', confidence: 'mid', nodeId: '333-40035' },
+        ],
+        style: [
+          { name: '价格数字', path: '商品详情 / 价格区 / 当前价', kind: 'fill-color', detail: '#FF2D2D 未绑定颜色样式', suggest: '语义/大促红', nodeId: '333-40050' },
+          { name: '原价划线', path: '商品详情 / 价格区 / 原价', kind: 'text-style', detail: '字号12px 划线未绑定样式', suggest: '辅助/Caption-划线', nodeId: '333-40065' },
+        ],
+        layout: [],
+      },
+    },
+    {
+      id: 'h2',
+      name: '【消息中心】系统通知模板',
+      figmaUrl: 'https://www.figma.com/design/AaBbCcDdEeFf005',
+      scannedAt: '2026-04-05 15:20',
+      issues: { component: [], style: [], layout: [] },
+    },
+  ],
+};
+
+// ── DataService ────────────────────────────────────────────────────────────
+// Swap these two function bodies to connect a real API; UI code stays intact.
+
+const DataService = {
+  async fetchWeekList() {
+    // Future: return fetch('/api/weeks').then(r => r.json())
+    return MOCK_WEEK_LIST;
+  },
+  async fetchWeek(weekId) {
+    // Future: return fetch(`/api/report/${weekId}`).then(r => r.json())
+    return MOCK_DATA[weekId] || null;
+  },
+};
+
+// ── State ──────────────────────────────────────────────────────────────────
+
+let REPORT = null;           // currently loaded week data
+let CURRENT_WEEK_ID = null;  // e.g. '2026-04-20'
 
 // ── Helpers ───────────────────────────────────────────────────────────────
 
@@ -935,21 +1096,62 @@ function renderLoadingState() {
   `;
 }
 
-function renderErrorState(msg) {
-  document.getElementById('main').innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:60vh;gap:12px;color:var(--text-3)">
-      <div style="font-size:28px;opacity:.4">⚠</div>
-      <div style="font-size:13px;color:var(--text-2)">${esc(msg)}</div>
-      <div style="font-size:11px">请确认 weekly-report.json 已放置在同目录下</div>
-    </div>
-  `;
+// Populate the week history list in the sidebar
+function renderWeekList(weeks, activeId) {
+  const container = document.getElementById('weekList');
+  container.innerHTML = '';
+  weeks.forEach(w => {
+    const div = document.createElement('div');
+    div.className = 'week-item' + (w.id === activeId ? ' active' : '');
+    div.id = 'week-' + w.id;
+    div.innerHTML = `
+      <span class="week-item-label">${esc(w.label)}</span>
+      ${w.isCurrent ? '<span class="week-item-tag">本周</span>' : `<span class="week-item-count">${esc(w.week.slice(5, 10))}</span>`}
+    `;
+    div.onclick = () => switchWeek(w.id);
+    container.appendChild(div);
+  });
 }
 
-function initApp(report) {
-  REPORT = report;
+// Load and display a specific week
+async function switchWeek(weekId) {
+  if (weekId === CURRENT_WEEK_ID) { showOverview(); return; }
+
+  renderLoadingState();
+
+  // Update hash for shareable/restorable URL
+  history.replaceState(null, '', '#' + weekId);
+
+  const data = await DataService.fetchWeek(weekId);
+  if (!data) {
+    document.getElementById('main').innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:60vh;gap:12px;color:var(--text-3)">
+        <div style="font-size:28px;opacity:.4">⚠</div>
+        <div style="font-size:13px;color:var(--text-2)">找不到 ${esc(weekId)} 的报告数据</div>
+      </div>`;
+    return;
+  }
+
+  REPORT = data;
+  CURRENT_WEEK_ID = weekId;
+
+  // Update header
   document.getElementById('headerWeek').textContent = REPORT.week;
   document.getElementById('headerMeta').textContent = '生成于 ' + REPORT.generatedAt;
 
+  // Update week-list active state
+  document.querySelectorAll('.week-item').forEach(el => {
+    el.classList.toggle('active', el.id === 'week-' + weekId);
+  });
+
+  // Rebuild file list for the new week
+  rebuildFileSidebar();
+
+  showOverview();
+}
+
+// Rebuild the per-file nav items for the currently loaded REPORT
+function rebuildFileSidebar() {
   const sidebarList = document.getElementById('sidebarList');
   sidebarList.innerHTML = '';
   REPORT.files.forEach(f => {
@@ -959,28 +1161,46 @@ function initApp(report) {
     div.id = 'nav-' + f.id;
     const sc = severityClass(t);
     div.innerHTML = `
-      <div class="nav-item-name">${esc(f.name)}</div>
+      <span class="nav-name">${esc(f.name)}</span>
       <span class="nav-badge ${sc}">${t === 0 ? '✓' : t}</span>
     `;
     div.onclick = () => showDetail(f.id);
     sidebarList.appendChild(div);
   });
-
-  showOverview();
 }
 
-// Try to load weekly-report.json; fall back to embedded mock data
-renderLoadingState();
-fetch('./weekly-report.json')
-  .then(r => {
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    return r.json();
-  })
-  .then(data => initApp(data))
-  .catch(() => {
-    // No server or file not found — use mock data so local preview still works
-    initApp(REPORT_MOCK);
-  });
+// Initial load
+async function boot() {
+  renderLoadingState();
+
+  const weeks = await DataService.fetchWeekList();
+
+  // Determine which week to show: from URL hash, or default to most recent
+  const hashId = location.hash.replace('#', '');
+  const targetId = weeks.find(w => w.id === hashId)
+    ? hashId
+    : weeks[0]?.id;
+
+  renderWeekList(weeks, targetId);
+
+  const data = await DataService.fetchWeek(targetId);
+  if (data) {
+    REPORT = data;
+    CURRENT_WEEK_ID = targetId;
+    document.getElementById('headerWeek').textContent = REPORT.week;
+    document.getElementById('headerMeta').textContent = '生成于 ' + REPORT.generatedAt;
+    rebuildFileSidebar();
+    showOverview();
+  }
+}
+
+// Restore week from hash on back/forward navigation
+window.addEventListener('hashchange', () => {
+  const id = location.hash.replace('#', '');
+  if (id && id !== CURRENT_WEEK_ID) switchWeek(id);
+});
+
+boot();
 </script>
 </body>
 </html>

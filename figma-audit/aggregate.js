@@ -124,8 +124,19 @@ export function aggregateResults(auditResults, { outputDir, weekLabel } = {}) {
     fs.mkdirSync(outDir, { recursive: true });
   }
 
+  const json = JSON.stringify(report, null, 2);
+
+  // Overwrite the "current" file (fetched by report-demo.html on load)
   const outPath = path.join(outDir, 'weekly-report.json');
-  fs.writeFileSync(outPath, JSON.stringify(report, null, 2), 'utf-8');
+  fs.writeFileSync(outPath, json, 'utf-8');
   console.log(`📊 周报 JSON：${outPath}`);
+
+  // Also write a dated archive so each week is permanently accessible
+  // Filename: report-YYYY-MM-DD.json using the Sunday (end) of the week range
+  const weekEnd = report.week.split(' ~ ')[1]?.trim() || now.toISOString().slice(0, 10);
+  const archivePath = path.join(outDir, `report-${weekEnd}.json`);
+  fs.writeFileSync(archivePath, json, 'utf-8');
+  console.log(`📁 存档 JSON：${archivePath}`);
+
   return outPath;
 }
