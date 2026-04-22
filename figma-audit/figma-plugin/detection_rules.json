@@ -1,0 +1,99 @@
+{
+  "generated_at": "2026-04-20T00:00:00.000Z",
+  "source": "manual_from_ai_prompt",
+  "note": "基于 ai.js system prompt 手工固化的检测规则，无需每次调用 AI",
+  "rule_count": 13,
+  "rules": [
+    {
+      "componentName": "按钮",
+      "pageName": "按钮",
+      "priority": 90,
+      "description": "有背景色/描边+圆角+文字的矩形容器",
+      "code": "function(node){\n  var hasFill = (node.fills||[]).some(function(f){return f.type==='SOLID';});\n  var hasStroke = (node.strokes||[]).length > 0;\n  if (!hasFill && !hasStroke) return null;\n  if (!node.cornerRadius || node.cornerRadius < 4) return null;\n  if (!node.height || node.height < 24 || node.height > 72) return null;\n  if (!node.width || node.width < 48 || node.width > 360) return null;\n  var texts = node.textChildren || [];\n  if (texts.length < 1) return null;\n  var childTypes = node.childTypes || [];\n  if (childTypes.includes('INSTANCE')) return null;\n  var conf = 80;\n  if (node.height >= 28 && node.height <= 56) conf += 5;\n  if (node.width >= 60 && node.width <= 300) conf += 5;\n  return { confidence: Math.min(conf, 92), reason: '有背景色+圆角+文字，符合按钮特征（高度'+Math.round(node.height)+'px，宽度'+Math.round(node.width)+'px）' };\n}"
+    },
+    {
+      "componentName": "筛选Tag/标签",
+      "pageName": "筛选Tag",
+      "priority": 85,
+      "description": "胶囊形有背景色的小标签，宽<120px 高<36px",
+      "code": "function(node){\n  var hasFill = (node.fills||[]).some(function(f){return f.type==='SOLID';});\n  if (!hasFill) return null;\n  if (!node.cornerRadius || node.cornerRadius < 8) return null;\n  if (!node.width || !node.height) return null;\n  if (node.width > 140 || node.height > 40) return null;\n  if (node.width < 20 || node.height < 14) return null;\n  var texts = node.textChildren || [];\n  if (texts.length < 1) return null;\n  var childTypes = node.childTypes || [];\n  if (childTypes.includes('INSTANCE')) return null;\n  var isCapsuled = node.cornerRadius >= node.height / 2 - 2;\n  var conf = isCapsuled ? 85 : 75;\n  return { confidence: conf, reason: '胶囊形小标签（'+Math.round(node.width)+'×'+Math.round(node.height)+'，圆角'+node.cornerRadius+'）' };\n}"
+    },
+    {
+      "componentName": "筛排栏",
+      "pageName": "筛选Tag",
+      "priority": 82,
+      "description": "宽度接近屏幕宽的筛选条，含多个筛选项横排",
+      "code": "function(node){\n  if (!node.width || node.width < 300) return null;\n  if (!node.height || node.height < 32 || node.height > 60) return null;\n  if (node.layoutMode !== 'HORIZONTAL') return null;\n  var childTypes = node.childTypes || [];\n  if (childTypes.includes('INSTANCE')) return null;\n  var childCount = node.childCount || 0;\n  if (childCount < 2) return null;\n  return { confidence: 78, reason: '横排筛选栏（宽'+Math.round(node.width)+'px，'+childCount+'个子元素）' };\n}"
+    },
+    {
+      "componentName": "一级Tab栏/二级Tab栏",
+      "pageName": "标签栏Tabs",
+      "priority": 80,
+      "description": "宽度接近屏幕的横排Tab栏，包含3-6个tab项",
+      "code": "function(node){\n  if (!node.width || node.width < 300) return null;\n  if (!node.height || node.height < 28 || node.height > 56) return null;\n  if (node.layoutMode !== 'HORIZONTAL') return null;\n  var childTypes = node.childTypes || [];\n  if (childTypes.includes('INSTANCE')) return null;\n  var childCount = node.childCount || 0;\n  if (childCount < 2 || childCount > 8) return null;\n  var texts = node.textChildren || [];\n  if (texts.length < 1) return null;\n  return { confidence: 80, reason: 'Tab栏（宽'+Math.round(node.width)+'px，'+childCount+'个tab项）' };\n}"
+    },
+    {
+      "componentName": "输入框",
+      "pageName": "输入框",
+      "priority": 78,
+      "description": "有描边或浅色背景的输入容器，含文字子节点",
+      "code": "function(node){\n  var hasFill = (node.fills||[]).some(function(f){return f.type==='SOLID';});\n  var hasStroke = (node.strokes||[]).length > 0;\n  if (!hasFill && !hasStroke) return null;\n  if (!node.height || node.height < 32 || node.height > 64) return null;\n  if (!node.width || node.width < 100) return null;\n  if (!node.cornerRadius || node.cornerRadius > 12) return null;\n  var texts = node.textChildren || [];\n  if (texts.length < 1) return null;\n  var childTypes = node.childTypes || [];\n  if (childTypes.includes('INSTANCE')) return null;\n  return { confidence: 75, reason: '输入框形态（高'+Math.round(node.height)+'px，宽'+Math.round(node.width)+'px）' };\n}"
+    },
+    {
+      "componentName": "开关",
+      "pageName": "开关",
+      "priority": 88,
+      "description": "胶囊形开关，宽40-60 高20-32",
+      "code": "function(node){\n  if (!node.width || !node.height) return null;\n  if (node.width < 36 || node.width > 68) return null;\n  if (node.height < 18 || node.height > 36) return null;\n  if (!node.cornerRadius || node.cornerRadius < node.height/2 - 3) return null;\n  var childTypes = node.childTypes || [];\n  if (childTypes.includes('INSTANCE')) return null;\n  var hasFill = (node.fills||[]).some(function(f){return f.type==='SOLID';});\n  if (!hasFill) return null;\n  var childCount = node.childCount || 0;\n  if (childCount < 1) return null;\n  return { confidence: 85, reason: '胶囊形开关（'+Math.round(node.width)+'×'+Math.round(node.height)+'px）' };\n}"
+    },
+    {
+      "componentName": "单选/复选框",
+      "pageName": "单选复选框",
+      "priority": 82,
+      "description": "小正方形或圆形，尺寸16-24px，可能有描边",
+      "code": "function(node){\n  if (!node.width || !node.height) return null;\n  if (node.width < 14 || node.width > 28) return null;\n  if (node.height < 14 || node.height > 28) return null;\n  var diff = Math.abs(node.width - node.height);\n  if (diff > 4) return null;\n  var childTypes = node.childTypes || [];\n  if (childTypes.includes('INSTANCE')) return null;\n  var hasStroke = (node.strokes||[]).length > 0;\n  var hasFill = (node.fills||[]).some(function(f){return f.type==='SOLID';});\n  if (!hasStroke && !hasFill) return null;\n  return { confidence: 75, reason: '正方形/圆形小控件（'+Math.round(node.width)+'×'+Math.round(node.height)+'px），符合单选/复选框特征' };\n}"
+    },
+    {
+      "componentName": "头像",
+      "pageName": "头像",
+      "priority": 80,
+      "description": "正圆形，尺寸24-64px，有图片填充",
+      "code": "function(node){\n  if (!node.width || !node.height) return null;\n  if (node.width < 20 || node.width > 80) return null;\n  var diff = Math.abs(node.width - node.height);\n  if (diff > 4) return null;\n  if (!node.cornerRadius || node.cornerRadius < node.width/2 - 4) return null;\n  var childTypes = node.childTypes || [];\n  if (childTypes.includes('INSTANCE')) return null;\n  if (node.width <= 24 && node.height <= 24) return null;\n  return { confidence: 78, reason: '圆形头像占位（'+Math.round(node.width)+'×'+Math.round(node.height)+'px）' };\n}"
+    },
+    {
+      "componentName": "步进器",
+      "pageName": "步进器",
+      "priority": 85,
+      "description": "减号+数字+加号横排，宽60-120 高24-40",
+      "code": "function(node){\n  if (!node.width || !node.height) return null;\n  if (node.width < 56 || node.width > 140) return null;\n  if (node.height < 20 || node.height > 44) return null;\n  if (node.layoutMode !== 'HORIZONTAL') return null;\n  var childTypes = node.childTypes || [];\n  if (childTypes.includes('INSTANCE')) return null;\n  var childCount = node.childCount || 0;\n  if (childCount < 2) return null;\n  var texts = node.textChildren || [];\n  if (texts.length < 1) return null;\n  return { confidence: 80, reason: '步进器形态（减号+数字+加号横排，'+Math.round(node.width)+'×'+Math.round(node.height)+'px）' };\n}"
+    },
+    {
+      "componentName": "搜索栏",
+      "pageName": "搜索栏",
+      "priority": 78,
+      "description": "有背景色，含文字，宽接近屏幕宽，高32-48",
+      "code": "function(node){\n  var hasFill = (node.fills||[]).some(function(f){return f.type==='SOLID';});\n  if (!hasFill) return null;\n  if (!node.height || node.height < 28 || node.height > 56) return null;\n  if (!node.width || node.width < 240) return null;\n  var texts = node.textChildren || [];\n  if (texts.length < 1) return null;\n  var childTypes = node.childTypes || [];\n  if (childTypes.includes('INSTANCE')) return null;\n  var hasIcon = node.hasIcon || false;\n  var conf = hasIcon ? 80 : 70;\n  return { confidence: conf, reason: '搜索栏形态（宽'+Math.round(node.width)+'×高'+Math.round(node.height)+'px）' };\n}"
+    },
+    {
+      "componentName": "气泡/Toast",
+      "pageName": "气泡提示",
+      "priority": 75,
+      "description": "有背景色，有投影效果，包含文字",
+      "code": "function(node){\n  var hasFill = (node.fills||[]).some(function(f){return f.type==='SOLID';});\n  if (!hasFill) return null;\n  var effects = node.effects || [];\n  var hasShadow = effects.some(function(e){return e.type==='DROP_SHADOW'||e.type==='INNER_SHADOW';});\n  if (!hasShadow) return null;\n  var texts = node.textChildren || [];\n  if (texts.length < 1) return null;\n  var childTypes = node.childTypes || [];\n  if (childTypes.includes('INSTANCE')) return null;\n  if (!node.height || node.height > 200) return null;\n  if (!node.width || node.width > 320) return null;\n  return { confidence: 72, reason: '有背景+投影+文字，符合气泡/Toast特征' };\n}"
+    },
+    {
+      "componentName": "券条",
+      "pageName": "券",
+      "priority": 83,
+      "description": "横向券条：左侧折扣金额+右侧操作，宽280-375 高50-90",
+      "code": "function(node){\n  if (!node.width || !node.height) return null;\n  if (node.width < 240 || node.width > 380) return null;\n  if (node.height < 44 || node.height > 100) return null;\n  if (node.width <= node.height * 1.5) return null;\n  var childTypes = node.childTypes || [];\n  if (childTypes.includes('INSTANCE')) return null;\n  var hasFill = (node.fills||[]).some(function(f){return f.type==='SOLID';});\n  if (!hasFill) return null;\n  var texts = node.textChildren || [];\n  if (texts.length < 2) return null;\n  return { confidence: 75, reason: '横向券条形态（'+Math.round(node.width)+'×'+Math.round(node.height)+'px）' };\n}"
+    },
+    {
+      "componentName": "顶部导航栏",
+      "pageName": "顶部导航栏",
+      "priority": 77,
+      "description": "宽度接近屏幕宽，高度36-56px，含标题文字",
+      "code": "function(node){\n  if (!node.width || node.width < 300) return null;\n  if (!node.height || node.height < 32 || node.height > 64) return null;\n  var texts = node.textChildren || [];\n  if (texts.length < 1) return null;\n  var childTypes = node.childTypes || [];\n  if (childTypes.includes('INSTANCE')) return null;\n  var childCount = node.childCount || 0;\n  if (childCount < 1) return null;\n  return { confidence: 72, reason: '顶部导航栏形态（宽'+Math.round(node.width)+'px，高'+Math.round(node.height)+'px）' };\n}"
+    }
+  ]
+}

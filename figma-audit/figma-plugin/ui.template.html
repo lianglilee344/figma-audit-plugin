@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>组件规范自查</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Figtree:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:          #ffffff;
+  --bg-raise:    #f7f7f5;
+  --bg-card:     #fafaf8;
+  --bg-hover:    #f3f3f0;
+  --border:      #e8e6e0;
+  --border-sub:  #f0eeea;
+  --text-1:      #111010;
+  --text-2:      #6b6862;
+  --text-3:      #a09d97;
+  --red:         #c0392b;
+  --red-dim:     rgba(192,57,43,.09);
+  --amber:       #b5720a;
+  --amber-dim:   rgba(181,114,10,.09);
+  --green:       #1e7d4e;
+  --green-dim:   rgba(30,125,78,.09);
+  --blue:        #2563eb;
+  --blue-dim:    rgba(37,99,235,.08);
+  --ff-display:  'Cormorant Garamond', Georgia, serif;
+  --ff-body:     'Figtree', system-ui, sans-serif;
+  --ff-mono:     'JetBrains Mono', monospace;
+  --radius:      5px;
+  --transition:  180ms cubic-bezier(.4,0,.2,1);
+}
+
+html { font-size: 13px; }
+body {
+  font-family: var(--ff-body);
+  color: var(--text-1);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+}
+
+/* ── Header ── */
+.header {
+  padding: 13px 14px 11px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: var(--bg);
+}
+.title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-1);
+  line-height: 1.3;
+}
+.scope {
+  font-size: 10px;
+  color: var(--text-3);
+  margin-top: 2px;
+  font-family: var(--ff-mono);
+  letter-spacing: -.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
+}
+.btn-scan {
+  font-family: var(--ff-body);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 8px 18px;
+  border: none;
+  background: var(--text-1);
+  color: #fff;
+  border-radius: var(--radius);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-width: 80px;
+  transition: opacity var(--transition);
+  letter-spacing: .01em;
+}
+.btn-scan:hover { opacity: .78; }
+.btn-scan:disabled { opacity: 0.35; cursor: wait; }
+
+/* ── Stats strip ── */
+.stats-wrap { display: none; }
+.stats-strip {
+  display: grid;
+  grid-template-columns: 38.4fr 20.6fr 20.6fr 20.6fr;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-raise);
+}
+.stat-main {
+  padding: 9px 10px 16px;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+}
+.stat-main-num {
+  font-family: var(--ff-display);
+  font-size: 52px;
+  font-weight: 300;
+  line-height: 1;
+  color: var(--text-1);
+  letter-spacing: -2px;
+}
+.stat-main-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 4px;
+}
+.stat-sub {
+  padding: 9px 10px 16px;
+  border-right: 1px solid var(--border-sub);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 20px;
+}
+.stat-sub:last-child { border-right: none; }
+.stat-sub-num {
+  font-family: var(--ff-display);
+  font-size: 36px;
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -1px;
+  position: relative;
+  top: -6px;
+}
+.stat-sub-num.red   { color: var(--red); }
+.stat-sub-num.amber { color: var(--amber); }
+.stat-sub-num.green { color: var(--green); }
+.stat-sub-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+/* ── Tabs ── */
+.seg-bar {
+  display: none;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  padding: 0 14px;
+  height: 46px;
+  align-items: center;
+}
+.seg {
+  font-family: var(--ff-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  color: var(--text-3);
+  padding: 0;
+  height: 100%;
+  margin-right: 16px;
+  background: none;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color var(--transition), border-color var(--transition);
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+}
+.seg:last-child { margin-right: 0; }
+.seg.active { color: var(--text-1); border-bottom-color: var(--text-1); }
+.seg-count {
+  display: inline-block;
+  margin-left: 4px;
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  color: inherit;
+  opacity: .7;
+}
+
+/* ── Filter chips ── */
+.filters {
+  display: none;
+  align-items: center;
+  gap: 4px;
+  padding: 0 14px;
+  height: 46px;
+  background: var(--bg);
+}
+.chip {
+  font-family: var(--ff-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  padding: 4px 12px;
+  border: 1px solid var(--border);
+  background: transparent;
+  border-radius: 100px;
+  cursor: pointer;
+  color: var(--text-3);
+  transition: all var(--transition);
+}
+.chip:hover { border-color: var(--text-2); color: var(--text-2); }
+.chip.active { background: var(--text-1); color: #fff; border-color: var(--text-1); }
+
+/* ── Results ── */
+.results {
+  padding: 0 8px 8px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.empty-icon { font-size: 22px; opacity: .4; }
+.empty-text { font-size: 11px; }
+
+/* ── Issue card ── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid rgba(232,230,224,.5);
+  border-radius: var(--radius);
+  padding: 10px 8px 8px;
+  animation: fadeUp .15s ease both;
+  transition: background var(--transition);
+}
+.card:hover { background: var(--bg-hover); }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(3px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.card-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+.card-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-1);
+  line-height: 1.35;
+  flex: 1;
+}
+.card-path-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.card-path {
+  font-family: var(--ff-mono);
+  font-size: 9px;
+  color: var(--text-3);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.card-size {
+  font-family: var(--ff-mono);
+  font-size: 9px;
+  color: var(--text-3);
+  flex-shrink: 0;
+}
+
+.conf-pill {
+  flex-shrink: 0;
+  font-size: 9px;
+  font-weight: 600;
+  border-radius: 3px;
+  padding: 1px 6px;
+}
+.conf-pill.high { background: var(--red-dim);   color: var(--red); }
+.conf-pill.mid  { background: var(--amber-dim); color: var(--amber); }
+.conf-pill.low  { background: var(--green-dim); color: var(--green); }
+
+.btn-locate {
+  font-family: var(--ff-body);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--blue);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  opacity: .85;
+  flex-shrink: 0;
+  transition: opacity var(--transition);
+}
+.btn-locate:hover { opacity: 1; text-decoration: underline; }
+.btn-locate::after { content: ' ↗'; font-size: 9px; }
+
+.reason-row {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  padding: 7px 8px;
+  background: var(--bg-hover);
+  border-radius: 4px;
+  margin-bottom: 0;
+  flex-wrap: wrap;
+}
+.reason-type {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-1);
+  flex-shrink: 0;
+}
+.reason-body {
+  font-size: 10px;
+  color: var(--text-2);
+  flex: 1;
+}
+.reason-detail {
+  flex-basis: 100%;
+  font-size: 10px;
+  color: var(--text-2);
+  line-height: 1.5;
+  padding-top: 2px;
+}
+
+.suggest-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 8px;
+  background: var(--blue-dim);
+  border-radius: 4px;
+  margin-top: 8px;
+  margin-bottom: 0;
+  flex-wrap: wrap;
+}
+.suggest-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--blue);
+  flex-shrink: 0;
+}
+.suggest-arrow { color: var(--blue); font-size: 10px; flex-shrink: 0; }
+.suggest-comp  { color: var(--blue); font-weight: 600; font-size: 10px; }
+
+.card-foot { display: none; }
+
+  /* ── Progress ── */
+  .progress {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    padding: 7px 14px;
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+    font-family: var(--ff-mono);
+    font-size: 10px;
+    color: var(--text-3);
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="title">抖音商城设计语言 2.0 组件规范走查</div>
+    <div class="scope" id="scope">选中 Frame 后点扫描 · 不选则扫描整页</div>
+  </div>
+  <button class="btn-scan" id="btnScan">扫描</button>
+</div>
+
+<div class="stats-wrap" id="stats">
+  <div class="stats-strip">
+    <div class="stat-main">
+      <div class="stat-main-label">问题总数</div>
+      <div class="stat-main-num" id="sAll">0</div>
+    </div>
+    <div class="stat-sub">
+      <div class="stat-sub-label">高置信</div>
+      <div class="stat-sub-num red" id="sHigh">0</div>
+    </div>
+    <div class="stat-sub">
+      <div class="stat-sub-label">中置信</div>
+      <div class="stat-sub-num amber" id="sMid">0</div>
+    </div>
+    <div class="stat-sub">
+      <div class="stat-sub-label">低置信</div>
+      <div class="stat-sub-num green" id="sLow">0</div>
+    </div>
+  </div>
+</div>
+
+<div class="seg-bar" id="mainTabs">
+  <span class="seg active" data-t="comp">组件匹配<span class="seg-count" id="tComp"></span></span>
+  <span class="seg" data-t="style">文字 / 颜色<span class="seg-count" id="tStyle"></span></span>
+  <span class="seg" data-t="layout">布局建议<span class="seg-count" id="tLayout"></span></span>
+</div>
+
+<div class="filters" id="filters">
+  <button class="chip active" data-f="all">全部</button>
+  <button class="chip" data-f="high">高</button>
+  <button class="chip" data-f="mid">中</button>
+  <button class="chip" data-f="low">低</button>
+</div>
+
+<div class="results" id="results">
+  <div class="empty">
+    <div class="empty-icon">◎</div>
+    <div class="empty-text">选中 Frame 开始扫描，或扫描整页</div>
+  </div>
+</div>
+
+<div class="progress" id="progress"></div>
+
+<script>
+/* RULES_INJECT */
+/* AUDIT_INJECT */
+
+var FP = null;           // { variants: [...], styleFills: [...] }
+var ALL = [];            // 组件匹配结果
+var STYLE_ALL = [];      // 文字/颜色样式问题
+var LAYOUT_HINTS = [];   // 布局建议（不计入问题总数）
+var FILTER = 'all';
+var THRESH = 55;         // 主组件匹配阈值，启动时从 FP.config 覆盖
+var CONF_HIGH = 75;      // 高置信度门槛
+var CONF_MID  = 62;      // 中置信度门槛
+var NI_THRESH_DEFAULT = 82; // 非库组件上报阈值
+
+// UI 文案：从 FP.config.uiMessages 读取，缺失时用默认值
+var UI_MSG_DEFAULT = {
+  title: '抖音商城设计语言 2.0 组件规范走查',
+  btnScan: '扫描', btnScanning: '扫描中...', btnRescan: '重新扫描',
+  scanningPlaceholder: '正在扫描...',
+  emptyLayout: '未发现布局问题', emptyNone: '未发现问题',
+  labelNonCompliant: '非规范组件', labelStandard: '规范', labelSuggest: '建议',
+  locateBtn: '定位 ↗',
+};
+function UM(key) {
+  var ui = (FP && FP.config && FP.config.uiMessages) || {};
+  return ui[key] || UI_MSG_DEFAULT[key] || '';
+}
+var MAIN_TAB = 'comp';
+
+var $ = function(id){ return document.getElementById(id); };
+var scopeEl = $('scope'), statsEl = $('stats'), filtersEl = $('filters'), resultsEl = $('results');
+var progressEl = $('progress');
+var mainTabsEl = $('mainTabs');
+var SEG_H = 36; // tab bar height px
+
+$('btnScan').onclick = function() {
+  parent.postMessage({ pluginMessage: { type: 'scan' } }, '*');
+  $('btnScan').disabled = true;
+  $('btnScan').textContent = UM('btnScanning');
+  resultsEl.innerHTML = '<div class="empty"><div class="empty-icon">⏳</div><div class="empty-text">' + esc(UM('scanningPlaceholder')) + '</div></div>';
+};
+
+
+var btns = document.querySelectorAll('.chip');
+for (var i = 0; i < btns.length; i++) {
+  btns[i].onclick = (function(el){ return function(){
+    for (var k = 0; k < btns.length; k++) btns[k].classList.remove('active');
+    el.classList.add('active');
+    FILTER = el.getAttribute('data-f');
+    renderResults();
+  }; })(btns[i]);
+}
+
+var tabEls = document.querySelectorAll('#mainTabs .seg');
+for (var ti = 0; ti < tabEls.length; ti++) {
+  tabEls[ti].onclick = (function(el){ return function(){
+    for (var k = 0; k < tabEls.length; k++) tabEls[k].classList.remove('active');
+    el.classList.add('active');
+    MAIN_TAB = el.getAttribute('data-t');
+    var noFilters = MAIN_TAB === 'layout';
+    filtersEl.style.display = noFilters ? 'none' : 'flex';
+    resultsEl.style.paddingTop = noFilters ? '8px' : '0';
+    renderResults();
+  }; })(tabEls[ti]);
+}
+
+// 计算并更新全局统计（组件 + 样式 总和）
+function updateGlobalStats() {
+  var high = 0, mid = 0, low = 0;
+  function count(list) {
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].score < THRESH) continue;
+      var lvl = confidenceLevel(list[i].score);
+      if (lvl === 'high') high++;
+      else if (lvl === 'mid') mid++;
+      else low++;
+    }
+  }
+  count(ALL);
+  count(STYLE_ALL);
+  $('sAll').textContent = high + mid + low;
+  $('sHigh').textContent = high;
+  $('sMid').textContent = mid;
+  $('sLow').textContent = low;
+  // 更新 Tab 上的小徽章
+  var compCount = 0, styleCount = 0;
+  for (var a = 0; a < ALL.length; a++) if (ALL[a].score >= THRESH) compCount++;
+  for (var b = 0; b < STYLE_ALL.length; b++) if (STYLE_ALL[b].score >= THRESH) styleCount++;
+  $('tComp').textContent = compCount || '';
+  $('tStyle').textContent = styleCount || '';
+  // 布局建议 Tab badge（不计入总数）
+  $('tLayout').textContent = LAYOUT_HINTS.length || '';
+}
+
+// ─── 多维相似度匹配器 ───────────────────────────────────────────────────
+//
+// 权重设计：
+//   颜色   18   - 红/蓝/灰能强区分按钮/标签
+//   子签名 18   - T1 vs T1-I1 vs I1 区分组件类别
+//   尺寸   14   - 宽高越接近越相似
+//   圆角比 12   - 胶囊 / 小圆角 / 方形
+//   填充/描边 10 - button vs input 关键差异
+//   渐变   6
+//   阴影   4
+//   文字   8    - 字号/字重
+//   布局   4    - horizontal/vertical
+//   内间距 6    - 组件常有 paddingX
+// -------- 总计 ~100
+//
+// 返回 0-100 分
+
+function sizeScore(a, b) {
+  if (a == null || b == null) return 0;
+  if (a === 0 && b === 0) return 1;
+  var diff = Math.abs(a - b) / Math.max(a, b);
+  if (diff < 0.05) return 1;       // <5% 误差
+  if (diff < 0.15) return 0.8;
+  if (diff < 0.3)  return 0.5;
+  if (diff < 0.5)  return 0.2;
+  return 0;
+}
+
+function ratioScore(a, b) {
+  if (a == null || b == null) return 0.5;  // 信息缺失给中性分
+  var diff = Math.abs(a - b);
+  if (diff < 0.05) return 1;
+  if (diff < 0.15) return 0.7;
+  if (diff < 0.3)  return 0.4;
+  return 0.1;
+}
+
+function childSigScore(a, b, vcat) {
+  if (!a || !b) return 0;
+  if (a.cs === b.cs) return 1;
+
+  // Tab/nav/coupon 这类容器：解组的画布节点是 "T5"，库里是 "N5"（5 个 instance）。
+  // 把子项总数（text + instance + icon）视为等价信号。
+  if (vcat === 'tab' || vcat === 'nav_top') {
+    var aItems = (a.cTxt || 0) + (a.cIns || 0) + (a.cIcn || 0);
+    var bItems = (b.cTxt || 0) + (b.cIns || 0) + (b.cIcn || 0);
+    if (aItems >= 3 && bItems >= 3) {
+      var diff = Math.abs(aItems - bItems);
+      if (diff === 0) return 0.95;
+      if (diff <= 1) return 0.85;
+      if (diff <= 2) return 0.7;
+      if (diff <= 4) return 0.5;
+      return 0.3;
+    }
+  }
+
+  // 部分匹配：对每个子类型用"归一化距离"打分
+  // 两者都为 0 给中性分（0.5），避免"空值匹配"虚高；
+  // 一个有一个没有 → 0 分（结构信号反差）；
+  // 两者都非零 → 按差距归一化。
+  function dim(va, vb) {
+    va = va || 0; vb = vb || 0;
+    if (va === 0 && vb === 0) return 0.5;
+    if (va === 0 || vb === 0) return 0;
+    var diff = Math.abs(va - vb) / Math.max(va, vb);
+    return Math.max(0, 1 - diff);
+  }
+  var ts = dim(a.cTxt, b.cTxt) * 0.30;
+  var ic = dim(a.cIcn, b.cIcn) * 0.25;
+  var im = dim(a.cImg, b.cImg) * 0.20;
+  var ni = dim(a.cIns, b.cIns) * 0.25;
+  return ts + ic + im + ni;
+}
+
+function colorScore(a, b) {
+  if (!a || !b) return 0.4;   // 信息缺失
+  if (a === b) return 1;
+  var neutral = { gray:1, white:1, black:1 };
+  var warm    = { red:1, orange:1, pink:1, yellow:1 };
+  var cool    = { blue:1, cyan:1, purple:1 };
+  if (neutral[a] && neutral[b]) return 0.7;
+  if (warm[a] && warm[b]) return 0.55;
+  if (cool[a] && cool[b]) return 0.55;
+  // 同属彩色（非中性）给低分，避免按钮颜色完全失配导致 0 分
+  if (!neutral[a] && !neutral[b]) return 0.3;
+  return 0;
+}
+
+function fontScore(aSize, aWeight, bSize, bWeight) {
+  var s = 0;
+  if (aSize != null && bSize != null) {
+    var d = Math.abs(aSize - bSize);
+    if (d <= 1) s += 0.6;
+    else if (d <= 3) s += 0.4;
+    else if (d <= 6) s += 0.2;
+  } else s += 0.3;  // 缺省给中性
+  if (aWeight != null && bWeight != null) {
+    if (aWeight === bWeight) s += 0.4;
+    else if (Math.abs(aWeight - bWeight) <= 100) s += 0.25;
+  } else s += 0.2;
+  return s;
+}
+
+function paddingScore(a, b) {
+  if (a.pL == null && b.pL == null) return 0.5;
+  if (a.pL == null || b.pL == null) return 0.3;
+  var diff = Math.abs((a.pL || 0) - (b.pL || 0)) + Math.abs((a.pT || 0) - (b.pT || 0));
+  if (diff < 4) return 1;
+  if (diff < 10) return 0.6;
+  if (diff < 20) return 0.3;
+  return 0;
+}
+
+function fillStrokeScore(a, b) {
+  var s = 0;
+  if (a.hF === b.hF) s += 0.5;
+  if (a.hS === b.hS) s += 0.5;
+  return s;
+}
+
+// ─── 候选类别推断 ───────────────────────────────────────────────────────
+// 一个候选可能同时属于多个类别（如"可能是 button 或 tag"），打分时取交集。
+// 若返回空数组，视为无类别偏好，跟任意 variant 类别相容。
+function inferCandidateCategories(fp) {
+  var cats = [];
+  var checkoutBarLike = fp.checkoutLex && fp.w != null && fp.w >= 300 &&
+    fp.h != null && fp.h >= 48 && fp.h <= 96;
+  // 头像
+  if (fp.isSquareRound && !fp.hasDigit && fp.cTxt === 0) cats.push('avatar');
+  // 顶部导航
+  if (fp.isHeaderLike) cats.push('nav_top');
+  // Tab
+  if (fp.isMultiTextRow) cats.push('tab');
+
+  // ─── Button vs Tag：用"群居"信号区分 ───
+  // 胶囊型单独出现 → button；胶囊型群居（兄弟 >= 1）→ tag。
+  var sib = fp.sib || 0;
+  var isCapsule = (fp.hF || fp.hS) && fp.h != null && fp.h >= 14 && fp.h <= 40 &&
+                  fp.cTxt >= 1 && fp.crR != null && fp.crR >= 0.15;
+
+  // 按钮：有填充或描边 + 文字/icon 少 + 尺寸在按钮范围 + 直接子数 ≤ 4
+  // 兼容透明描边型（hF=0, hS=1）按钮
+  // 排除含图片子节点的情况（头像/图片容器不是按钮）
+  var promoStripLike = fp.promoStripLex && fp.w >= 240 && fp.h != null && fp.h <= 48 &&
+      fp.ar != null && fp.ar >= 5;
+  if ((fp.hF || fp.hS) && fp.h != null && fp.h >= 20 && fp.h <= 64 &&
+      fp.cTxt >= 0 && fp.cTxt <= 2 && fp.cIcn <= 2 && fp.w >= 40 &&
+      (fp.cImg || 0) === 0 &&
+      (!fp.lc || fp.lc <= 4) && !promoStripLike && !checkoutBarLike) {
+    cats.push('button');
+  }
+  // Tag：胶囊型 + 必须有相似兄弟（tag 通常成组出现：多个筛选项/多个标签）
+  if (isCapsule && sib >= 1) {
+    cats.push('tag');
+  }
+  // Tooltip（悬浮提示）：外层无填充/描边、有阴影、包含气泡本体 + 小尖角 → cs=F2 的典型结构；
+  // 或者虽无上述外层特征，但尺寸中等 + 多层嵌套 + 带阴影
+  if (fp.hSh === 1 && fp.w != null && fp.w >= 80 && fp.w <= 320 &&
+      fp.h != null && fp.h >= 24 && fp.h <= 96) {
+    cats.push('tooltip');
+  }
+  // 输入框：有描边 + 宽长
+  if (fp.hS && fp.ar != null && fp.ar >= 2.5 && fp.cTxt === 1) cats.push('input');
+  // 开关：小 + 高圆角 + 有填充
+  if (fp.hF && fp.h != null && fp.h >= 16 && fp.h <= 32 && fp.ar != null && fp.ar >= 1.5 && fp.ar <= 2.2 && fp.crR >= 0.4 && fp.cTxt === 0) {
+    cats.push('switch');
+  }
+  // 角标/红点：小圆 + 数字（通知数量），不是货币展示
+  // 特征：isSquareRound + 尺寸 ≤ 24px + 有填充 + 含数字
+  var isBadge = fp.isSquareRound && fp.hF && (fp.h || 0) <= 24 && (fp.w || 0) <= 24 && fp.hasDigit;
+
+  // 数字类：必须含数字，且不是角标
+  if (!isBadge && fp.hasDigit && fp.cTxt >= 1) {
+    cats.push('currency');
+    if (fp.firstTextContent && /[:：]/.test(fp.firstTextContent)) cats.push('countdown');
+    // 纯数字（1-2 字符）可能是评分
+    if (/^\s*\d+(\.\d+)?\s*$/.test(fp.firstTextContent || '')) cats.push('rating');
+  }
+  // 券：中等宽度 + 无大图 + 含数字 + 有填充（券条通常有背景）
+  // 排除结算/购物车底栏（含「合计/购买/凑单」等文案，且高度常 > 扁券条）
+  if (fp.hF && fp.w != null && fp.w >= 200 && fp.h != null && fp.h >= 40 && fp.h <= 120 &&
+      fp.cImg === 0 && fp.hasDigit && !fp.checkoutLex) {
+    cats.push('coupon');
+  }
+  // 注意：库里没有 'card' 类别变体，所以不推断 card。
+  // "较大带填充的内容卡" 走 shouldSkip → 不参与匹配。
+
+  return cats;
+}
+
+// 类别完全不相容时的"否决"表（cand 类别 → 不应匹配的 variant 类别）
+// 候选推断出某类别时，即使分高也不能匹配被否决的 variant 类别。
+var CATEGORY_VETO = {
+  avatar:   { button:1, tag:1, tooltip:1, input:1, currency:1, countdown:1, rating:1, coupon:1, card:1, nav_top:1, tab:1, switch:1 },
+  nav_top:  { button:1, tag:1, tooltip:1, input:1, currency:1, countdown:1, rating:1, coupon:1, avatar:1, tab:1, switch:1 },
+  tab:      { button:1, tag:1, tooltip:1, input:1, currency:1, countdown:1, rating:1, coupon:1, avatar:1, nav_top:1, switch:1 },
+  // 单独出现的胶囊一定是 button，不是 tag（tag 群居）
+  button:   { tag:1, tooltip:1, input:1, currency:1, countdown:1, rating:1, coupon:1, avatar:1, nav_top:1, tab:1, switch:1, dialog:1, toast:1, card:1 },
+  // 群居的胶囊是 tag，不是 button
+  tag:      { button:1, tooltip:1, input:1, currency:1, countdown:1, rating:1, coupon:1, avatar:1, nav_top:1, tab:1, switch:1, dialog:1, toast:1, card:1 },
+  tooltip:  { currency:1, countdown:1, rating:1, coupon:1, avatar:1, nav_top:1, tab:1, switch:1, dialog:1, toast:1, card:1 },
+  input:    { tag:1, tooltip:1, currency:1, countdown:1, rating:1, coupon:1, avatar:1, nav_top:1, tab:1, switch:1, dialog:1, toast:1, card:1 },
+  coupon:   { button:1, tag:1, tooltip:1, input:1, currency:1, countdown:1, rating:1, avatar:1, nav_top:1, tab:1, switch:1, dialog:1, toast:1 },
+  currency: { button:1, tag:1, tooltip:1, input:1, countdown:1, coupon:1, avatar:1, nav_top:1, tab:1, switch:1, dialog:1, toast:1, card:1 },
+  countdown:{ button:1, tag:1, tooltip:1, input:1, currency:1, coupon:1, avatar:1, nav_top:1, tab:1, switch:1, dialog:1, toast:1, card:1 },
+};
+
+function scoreMatch(cand, variant) {
+  // ─── 类别相容性（硬门槛） ─────────────────────────────────────────────
+  var vcat = variant.cat || 'generic';
+  var candCats = cand._cats;
+
+  // 数字类硬约束：候选无数字 → 不允许匹配 currency/countdown/rating
+  if ((vcat === 'currency' || vcat === 'countdown' || vcat === 'rating') && !cand.hasDigit) return 0;
+  // 头像硬约束
+  if (vcat === 'avatar' && !cand.isSquareRound) return 0;
+  // 导航栏硬约束
+  if (vcat === 'nav_top' && (!cand.isHeaderLike || (cand.w || 0) < 320)) return 0;
+  // Tab 硬约束
+  if (vcat === 'tab' && !cand.isMultiTextRow) return 0;
+  // 开关硬约束：候选不像开关（无填充、太大、有文字）
+  if (vcat === 'switch' && (!cand.hF || (cand.cTxt || 0) > 0 || (cand.w || 0) > 80)) return 0;
+  // 按钮硬约束：子节点含图片填充（cImg > 0）→ 是头像/图片容器，不是按钮
+  if (vcat === 'button' && (cand.cImg || 0) > 0) return 0;
+  // 按钮硬约束：非纯圆角（crR < 0.45，即圆角 < 高度一半）且宽高比 > 4.5 → 是宽横条/横幅，不是按钮
+  // 真正的按钮要么是 pill 形（crR ≥ 0.45），要么宽高比适中（ar ≤ 4.5）
+  if (vcat === 'button' && (cand.crR == null || cand.crR < 0.45) && (cand.ar || 0) > 4.5) return 0;
+  // 角标硬约束：小圆形含数字 → 是通知角标，不是货币/倒计时/评分
+  if ((vcat === 'currency' || vcat === 'countdown' || vcat === 'rating') &&
+      cand.isSquareRound && cand.hF && (cand.h || 0) <= 24 && (cand.w || 0) <= 24) return 0;
+  // 输入框硬约束：候选没有描边 → 不像输入框
+  if (vcat === 'input' && !cand.hS) return 0;
+
+  // 营销/凑单扁条：不应匹配 button/tag（易误伤「直播间按钮」等）
+  if (cand.promoStripLex && (cand.ar || 0) >= 5 && (cand.h || 0) <= 48 && (cand.w || 0) >= 240) {
+    if (vcat === 'button' || vcat === 'tag') return 0;
+  }
+
+  // 全宽结算/购物车底栏：不是普通 button/tag/coupon
+  if (cand.checkoutLex && (cand.w || 0) >= 300 && (cand.h || 0) >= 48 && (cand.h || 0) <= 96) {
+    if (vcat === 'button' || vcat === 'tag' || vcat === 'coupon') return 0;
+  }
+
+  // 券条硬约束：中插/吸底券条在库里多为 h≤36 的扁条；底部购物车/结算栏常见 h≥48 且含结算文案
+  if (vcat === 'coupon') {
+    if (cand.checkoutLex) return 0;
+    var vh = variant.h || 0;
+    var ch = cand.h || 0;
+    if (vh <= 44 && ch >= 48) return 0;
+  }
+
+  // ─── 浮层结构硬约束（dialog/toast）─────────────────────────────────
+  // 库里 dialog 有两类结构：
+  //   (a) 小型对话框：cs="N*-F*"，至少含 1 个 INSTANCE（行动点按钮）
+  //   (b) 纯容器：cs="F*"，但尺寸高 ≥ 260（券弹窗/开场弹窗这类满屏模态）
+  // 内容区块（"我的订单"之类）结构上全是 FRAME + 少量 text/icon，不带 INSTANCE。
+  if (vcat === 'dialog') {
+    // 若变体是"带行动点"结构（cIns>=1），候选也必须含 INSTANCE
+    if ((variant.cIns || 0) >= 1 && (cand.cIns || 0) === 0) return 0;
+    // 若变体是"纯容器"结构（cIns=0），则用高度门槛避免被小型内容区块吞进来：
+    // 这类 dialog 最小高度 260+（券/开场弹窗都是全屏），候选太矮就不是
+    if ((variant.cIns || 0) === 0 && (cand.h || 0) < 240) return 0;
+    // 候选直接子若含任何 TEXT/VECTOR/IMAGE 直挂（非嵌套在 frame 内），不算 dialog
+    // —— dialog 直接子全部是 FRAME 或 INSTANCE 的规范结构
+    if ((cand.cTxt || 0) > 0 || (cand.cImg || 0) > 0) return 0;
+  }
+  // Toast 结构硬约束：toast 是小胶囊/矩形浮条，通常 h<=80 且为胶囊形
+  if (vcat === 'toast') {
+    if ((cand.h || 0) > 80) return 0;
+    if (cand.crR == null || cand.crR < 0.2) return 0;
+  }
+
+  // ─── 类别过滤 ─────────────────────────────────────────────────────
+  // 规则：
+  //   (a) 候选有强类别（candCats 非空）：variant 必须属于其中之一，或匹配类别不在候选类别的 veto 表里。
+  //       注意：generic 类 variant 也要遵守此规则（之前的 "vcat !== 'generic'" bypass 是漏洞，
+  //       会让任何含 card 类别的候选匹配到"搜中/搜后"这类 generic 容器）。
+  //   (b) 候选无强类别（candCats 为空）：保守起见不匹配任何有明确视觉特征的类别 variant，
+  //       只允许匹配 'generic'（兜底），避免"结构碰巧相似"的高分虚假匹配。
+  if (candCats && candCats.length > 0) {
+    if (candCats.indexOf(vcat) < 0) {
+      for (var ci = 0; ci < candCats.length; ci++) {
+        var veto = CATEGORY_VETO[candCats[ci]];
+        if (veto && veto[vcat]) return 0;
+      }
+      // generic 变体：若候选已经是明确类别且没直接命中，也不允许降级匹配 generic
+      if (vcat === 'generic') return 0;
+    }
+  } else {
+    // 候选无类别 → 只能对 generic 变体冒险匹配
+    if (vcat !== 'generic') return 0;
+  }
+
+  // ─── 尺寸极端不符直接 0 ──────────────────────────────────────────────
+  if (cand.w && variant.w) {
+    var rw = Math.max(cand.w, variant.w) / Math.min(cand.w, variant.w);
+    if (rw > 3.5) return 0;
+  }
+  if (cand.h && variant.h) {
+    var rh = Math.max(cand.h, variant.h) / Math.min(cand.h, variant.h);
+    if (rh > 3.5) return 0;
+  }
+
+  var score = 0;
+  // 颜色
+  score += colorScore(cand.col, variant.col) * 18;
+  // 子节点签名
+  score += childSigScore(cand, variant, vcat) * 18;
+  // 尺寸
+  score += ((sizeScore(cand.w, variant.w) + sizeScore(cand.h, variant.h)) / 2) * 14;
+  // 宽高比
+  score += ratioScore(cand.ar, variant.ar) * 4;
+  // 圆角比例
+  score += ratioScore(cand.crR, variant.crR) * 12;
+  // 填充/描边
+  score += fillStrokeScore(cand, variant) * 10;
+  // 渐变
+  score += (cand.hG === variant.hG ? 1 : 0) * 6;
+  // 阴影
+  score += (cand.hSh === variant.hSh ? 1 : 0) * 4;
+  // 文字
+  score += fontScore(cand.fs, cand.fw, variant.fs, variant.fw) * 8;
+  // 布局方向
+  score += (cand.lm === variant.lm ? 1 : 0) * 4;
+  // 内间距
+  score += paddingScore(cand, variant) * 6;
+
+  // 类别命中奖励（候选明确某类别 → variant 也是同类，加分）
+  if (candCats && candCats.length > 0 && candCats.indexOf(vcat) >= 0) {
+    score += 8;
+  }
+
+  return Math.round(score);
+}
+
+function findBestMatch(cand) {
+  if (!FP || !FP.variants) return null;
+  var best = null;
+  var bestScore = 0;
+  var secondScore = 0;
+  for (var i = 0; i < FP.variants.length; i++) {
+    var v = FP.variants[i];
+    var s = scoreMatch(cand.fp, v);
+    if (s > bestScore) {
+      secondScore = bestScore;
+      bestScore = s;
+      best = v;
+    } else if (s > secondScore) {
+      secondScore = s;
+    }
+  }
+  if (!best) return null;
+  return { variant: best, score: bestScore, margin: bestScore - secondScore };
+}
+
+// ─── 启发式预筛（避免明显不是组件的东西进来打分）─────────────────────
+function shouldSkip(cand) {
+  var fp = cand.fp;
+  var checkoutBarLike = fp.checkoutLex && fp.w >= 300 && fp.h >= 48 && fp.h <= 96;
+  // 单个裸文字（只有 1 个文字，无其它子，无填充无描边无阴影）
+  if (!fp.hF && !fp.hS && !fp.hSh && fp.cTxt === 1 && fp.lc === 1) return true;
+  // 大尺寸（>500 宽）且无圆角，可能是背景/容器
+  if (fp.w >= 500 && (!fp.cr || fp.cr <= 2) && fp.cTxt === 0 && !fp.isHeaderLike) return true;
+  // 全由子 INSTANCE 构成（已经是合规结构）——但 nav_top 容器本身也要进入匹配，不能跳过
+  if (fp.lc > 0 && fp.cIns === fp.lc && !fp.isHeaderLike) return true;
+  // 商品卡/内容卡：含图片 + 较大宽度
+  if (fp.cImg >= 1 && fp.w >= 240 && fp.h >= 60) return true;
+  // 复合内容卡：很多子项（多文字/多 instance）+ 较宽 + 无明显组件特征
+  if (fp.w >= 300 && (fp.cTxt + fp.cIns) >= 4 && (!fp.crR || fp.crR < 0.15) &&
+      !fp.isMultiTextRow && !fp.isHeaderLike) return true;
+  // 内容模块：页面级大宽度（>= 300）、直接子全是 frame 容器（cIns=0）、子数 >= 3、
+  // 无强圆角（crR < 0.1），且不是导航栏/Tab栏。这是"页面中的一个内容区块"典型签名，
+  // 如"我的订单 / 我的权益 / 推荐商品位"——库里没有对应组件可推荐。
+  if (fp.w >= 300 && fp.lc >= 3 && (fp.cIns || 0) === 0 &&
+      (!fp.crR || fp.crR < 0.1) && !fp.isMultiTextRow && !fp.isHeaderLike) return true;
+  // 无视觉边界的裸容器（无填充/无描边/无阴影）+ 多于 1 个子 → 仅布局用，非组件
+  // 例外：导航栏 frame 本身可能是透明的（背景来自兄弟组件），不能跳过
+  if (!fp.hF && !fp.hS && !fp.hSh && fp.lc >= 2 && !fp.isHeaderLike) return true;
+  // 营销/凑单进度横条：全宽、扁、高宽高比 + 促销话术或图层名（非标准 UI 组件）
+  if (fp.promoStripLex && fp.w >= 240 && fp.h <= 48 && fp.ar != null && fp.ar >= 5) return true;
+  // 全宽结算/购物车底栏：库里没有对应组件，避免误判成双按钮/券条
+  if (checkoutBarLike) return true;
+  return false;
+}
+
+function confidenceLevel(score) {
+  if (score >= CONF_HIGH) return 'high';
+  if (score >= CONF_MID)  return 'mid';
+  return 'low';
+}
+
+// ─── 扫描结果渲染 ─────────────────────────────────────────────────────
+function onScanResult(candidates, styleIssues, iconIssues, nonLibraryIssues, marginSuggestions, layoutSuggestions, scope) {
+  $('btnScan').disabled = false;
+  $('btnScan').textContent = UM('btnRescan');
+  var si = styleIssues || [];
+  var ii = iconIssues || [];
+  // 非库组件：走指纹评分，需高置信度才上报，避免内容区块误报
+  var NI_THRESH = NI_THRESH_DEFAULT;
+  var rawNi = nonLibraryIssues || [];
+  var ni = [];
+  for (var nfi = 0; nfi < rawNi.length; nfi++) {
+    var niItem = rawNi[nfi];
+    if (!niItem.fp) continue;
+    var niMatch = findBestMatch(niItem);
+    if (niMatch && niMatch.score >= NI_THRESH) {
+      niItem.score = niMatch.score;
+      ni.push(niItem);
+    }
+  }
+  var ms = marginSuggestions || [];
+  var ls = layoutSuggestions || [];
+  scopeEl.textContent = '已扫描：' + scope;
+  mainTabsEl.style.display = 'flex';
+
+  var matched = [];
+  for (var i = 0; i < candidates.length; i++) {
+    var c = candidates[i];
+    if (shouldSkip(c)) continue;
+    c.fp._cats = inferCandidateCategories(c.fp);
+    var match = findBestMatch(c);
+    if (!match) continue;
+    matched.push({
+      id: c.id, name: c.name, breadcrumb: c.breadcrumb, size: c.size,
+      suggestion: match.variant, score: match.score, margin: match.margin,
+    });
+  }
+
+  // 父子去重
+  matched.sort(function(a, b) {
+    if (a.breadcrumb.length !== b.breadcrumb.length) return a.breadcrumb.length - b.breadcrumb.length;
+    return b.score - a.score;
+  });
+  var accepted = [];
+  var acceptedBread = [];
+  for (var k = 0; k < matched.length; k++) {
+    var m = matched[k];
+    var isParentHit = false;
+    for (var p = 0; p < acceptedBread.length; p++) {
+      var pb = acceptedBread[p];
+      if (m.breadcrumb.length <= pb.length) continue;
+      var match1 = true;
+      for (var q = 0; q < pb.length; q++) {
+        if (m.breadcrumb[q] !== pb[q]) { match1 = false; break; }
+      }
+      if (match1) { isParentHit = true; break; }
+    }
+    if (isParentHit) continue;
+    accepted.push(m);
+    if (m.score >= THRESH) acceptedBread.push(m.breadcrumb);
+  }
+
+  ALL = accepted.sort(function(a, b) { return b.score - a.score; });
+  for (var zi = 0; zi < ii.length; zi++) ALL.push(ii[zi]);
+  for (var ni2 = 0; ni2 < ni.length; ni2++) ALL.push(ni[ni2]);
+  ALL.sort(function(a, b) { return b.score - a.score; });
+  STYLE_ALL = si.slice().sort(function(a, b) { return b.score - a.score; });
+
+  // 布局建议合并（margin + layout），不计入问题总数
+  LAYOUT_HINTS = ms.concat(ls);
+
+  statsEl.style.display = 'block';
+  var noFiltersNow = MAIN_TAB === 'layout';
+  filtersEl.style.display = noFiltersNow ? 'none' : 'flex';
+  resultsEl.style.paddingTop = noFiltersNow ? '8px' : '0';
+  updateGlobalStats();
+
+  renderResults();
+}
+
+// 每种问题对应的简明原因标签（显示在灰色区域第一行，加粗）
+function problemTypeLabel(kind, subkind) {
+  if (kind === 'non-library-instance') return '非规范组件库';
+  if (kind === 'icon-primitive')       return '手绘图标未组件化';
+  if (kind === 'text-style')           return '文字未绑定样式';
+  if (kind === 'fill-color')           return '颜色未绑定样式';
+  if (kind === 'component-match')      return '未使用规范组件';
+  if (kind === 'margin-hint')          return '栅格边距不规范';
+  if (kind === 'layout-hint') {
+    if (subkind === 'empty')           return '空容器';
+    if (subkind === 'redundant-wrap')  return '无意义嵌套';
+    return '布局问题';
+  }
+  return '';
+}
+
+function reasonBlock(label, detail) {
+  return '<div class="reason-row">' +
+    (label ? '<span class="reason-type">' + esc(label) + '</span>' : '') +
+    '<span class="reason-body">' + esc(detail) + '</span>' +
+  '</div>';
+}
+function reasonBlockFull(label, main, detail) {
+  return '<div class="reason-row">' +
+    (label ? '<span class="reason-type">' + esc(label) + '</span>' : '') +
+    '<span class="reason-body">' + esc(main) + '</span>' +
+    (detail ? '<span class="reason-detail">' + esc(detail) + '</span>' : '') +
+  '</div>';
+}
+
+function confPill(lvl) {
+  var label = lvl === 'high' ? '高' : lvl === 'mid' ? '中' : lvl === 'low' ? '低' : '';
+  return label ? '<span class="conf-pill ' + lvl + '">' + label + '</span>' : '';
+}
+function cardTop(name, lvl, nodeId) {
+  return '<div class="card-top">' +
+    confPill(lvl) +
+    '<div class="card-name">' + esc(name) + '</div>' +
+    '<button class="btn-locate" data-id="' + esc(nodeId) + '">定位</button>' +
+  '</div>';
+}
+function cardPathRow(breadcrumb, size) {
+  return '<div class="card-path-row">' +
+    '<div class="card-path">' + esc(breadcrumb.join(' / ')) + '</div>' +
+    (size ? '<span class="card-size">' + esc(size) + '</span>' : '') +
+  '</div>';
+}
+function suggestRow(label, suggest) {
+  return '<div class="suggest-row">' +
+    '<span class="suggest-label">' + esc(label) + '</span>' +
+    '<span class="suggest-arrow">→</span>' +
+    '<span class="suggest-comp">' + esc(suggest) + '</span>' +
+  '</div>';
+}
+
+function card(html, lvl) { return '<div class="card' + (lvl ? ' ' + lvl : '') + '">' + html + '</div>'; }
+
+function renderResults() {
+  if (MAIN_TAB === 'style') { renderStyleResults(); return; }
+  if (MAIN_TAB === 'layout') { renderLayoutResults(); return; }
+
+  var shown = [];
+  for (var i = 0; i < ALL.length; i++) {
+    var v = ALL[i];
+    if (v.score < THRESH) continue;
+    var lvl = confidenceLevel(v.score);
+    if (FILTER !== 'all' && FILTER !== lvl) continue;
+    shown.push(v);
+  }
+
+  if (shown.length === 0) {
+    resultsEl.innerHTML = card(
+      '<div class="empty" style="padding:24px 0">' +
+        '<div class="empty-icon">' + (ALL.length === 0 ? '✅' : '🔎') + '</div>' +
+        '<div class="empty-text">' + (ALL.length === 0 ? '未发现组件问题' : '当前过滤条件无结果') + '</div>' +
+      '</div>'
+    );
+    return;
+  }
+
+  var html = '';
+  for (var j = 0; j < shown.length; j++) {
+    var v = shown[j];
+    var lvl = confidenceLevel(v.score);
+    if (v.kind === 'non-library-instance') {
+      html += card(
+        cardTop(v.name, lvl, v.id) +
+        cardPathRow(v.breadcrumb, v.size) +
+        reasonBlock(problemTypeLabel('non-library-instance'), v.detail),
+        lvl
+      );
+      continue;
+    }
+    if (v.kind === 'icon-primitive') {
+      html += card(
+        cardTop(v.name, lvl, v.id) +
+        cardPathRow(v.breadcrumb, v.size) +
+        reasonBlock(problemTypeLabel('icon-primitive'), v.detail) +
+        suggestRow(UM('labelStandard'), v.suggest),
+        lvl
+      );
+      continue;
+    }
+    var rawCName = v.suggestion.g || v.suggestion.n || '';
+    var slashIdx = rawCName.indexOf('/');
+    var cName = slashIdx > 0 ? rawCName.slice(0, slashIdx).trim() : rawCName;
+    html += card(
+      cardTop(v.name, lvl, v.id) +
+      cardPathRow(v.breadcrumb, v.size) +
+      reasonBlock(problemTypeLabel('component-match'), '建议替换为规范组件') +
+      suggestRow('推荐组件', cName),
+      lvl
+    );
+  }
+  resultsEl.innerHTML = html;
+  bindLocate();
+}
+
+function renderStyleResults() {
+  var shown = [];
+  for (var i = 0; i < STYLE_ALL.length; i++) {
+    var v = STYLE_ALL[i];
+    if (v.score < THRESH) continue;
+    var lvl = confidenceLevel(v.score);
+    if (FILTER !== 'all' && FILTER !== lvl) continue;
+    shown.push(v);
+  }
+
+  if (shown.length === 0) {
+    resultsEl.innerHTML = card(
+      '<div class="empty" style="padding:24px 0">' +
+        '<div class="empty-icon">' + (STYLE_ALL.length === 0 ? '✅' : '🔎') + '</div>' +
+        '<div class="empty-text">' + (STYLE_ALL.length === 0 ? '未发现样式问题' : '当前过滤条件无结果') + '</div>' +
+      '</div>'
+    );
+    return;
+  }
+
+  var html = '';
+  for (var j = 0; j < shown.length; j++) {
+    var v = shown[j];
+    var lvl = confidenceLevel(v.score);
+    html += card(
+      cardTop(v.name, lvl, v.id) +
+      cardPathRow(v.breadcrumb, '') +
+      reasonBlock(problemTypeLabel(v.kind), v.detail) +
+      (v.suggest ? suggestRow(UM('labelSuggest'), v.suggest) : ''),
+      lvl
+    );
+  }
+  resultsEl.innerHTML = html;
+  bindLocate();
+}
+
+function renderLayoutResults() {
+  if (LAYOUT_HINTS.length === 0) {
+    resultsEl.innerHTML = '<div class="empty"><div class="empty-icon">◎</div><div class="empty-text">' + esc(UM('emptyLayout')) + '</div></div>';
+    return;
+  }
+  var html = '';
+  for (var i = 0; i < LAYOUT_HINTS.length; i++) {
+    var v = LAYOUT_HINTS[i];
+    html += card(
+      '<div class="card-top">' +
+        '<div class="card-name">' + esc(v.name) + '</div>' +
+        '<button class="btn-locate" data-id="' + esc(v.id) + '">定位</button>' +
+      '</div>' +
+      cardPathRow(v.breadcrumb, v.size || '') +
+      reasonBlock(problemTypeLabel(v.kind, v.subkind), v.detail),
+      'hint'
+    );
+  }
+  resultsEl.innerHTML = html;
+  bindLocate();
+}
+
+function bindLocate() {
+  var btns = resultsEl.querySelectorAll('.btn-locate');
+  for (var k = 0; k < btns.length; k++) {
+    btns[k].onclick = (function(id){ return function(){
+      parent.postMessage({ pluginMessage: { type: 'focus-node', nodeId: id } }, '*');
+    }; })(btns[k].getAttribute('data-id'));
+  }
+}
+
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─── 远端指纹 URL（build.js 在构建时注入，空字符串表示仅内嵌模式）──────
+var REMOTE_FP_URL = '/* FINGERPRINT_URL_INJECT */';
+
+function applyFingerprints(fp, source, page) {
+  FP = fp || { variants: [] };
+  var nf = FP.variants ? FP.variants.length : 0;
+  scopeEl.textContent = source + '（' + nf + ' 个变体）· 当前页：' + page;
+  // 从远端 config 更新 UI 端阈值（新 schema: thresholds.* ；兼容旧 schema: matchThreshold 等）
+  var c = FP.config;
+  if (c) {
+    var t = c.thresholds || {};
+    if (typeof t.match === 'number')        THRESH            = t.match;
+    else if (typeof c.matchThreshold === 'number')    THRESH  = c.matchThreshold;
+    if (typeof t.confHigh === 'number')     CONF_HIGH         = t.confHigh;
+    else if (typeof c.confHighThreshold === 'number') CONF_HIGH = c.confHighThreshold;
+    if (typeof t.confMid === 'number')      CONF_MID          = t.confMid;
+    else if (typeof c.confMidThreshold === 'number')  CONF_MID = c.confMidThreshold;
+    if (typeof t.nonLibMatch === 'number')  NI_THRESH_DEFAULT = t.nonLibMatch;
+    else if (typeof c.nonLibThreshold === 'number')   NI_THRESH_DEFAULT = c.nonLibThreshold;
+  }
+  // 把整个 config 回传给插件主线程（插件端 deepMerge 覆盖 CFG）
+  parent.postMessage({ pluginMessage: { type: 'config', config: c || {} } }, '*');
+
+  // 应用 UI 文案到静态 DOM
+  var titleEl = document.querySelector('.header .title');
+  if (titleEl) titleEl.textContent = UM('title');
+  var btnEl = $('btnScan');
+  if (btnEl && btnEl.textContent === '扫描') btnEl.textContent = UM('btnScan');
+  document.title = UM('title');
+}
+
+function initWithEmbedded(embedded, page) {
+  applyFingerprints(embedded, '内嵌指纹库', page);
+}
+
+// ─── 接收主线程消息 ──────────────────────────────────────────────────
+window.onmessage = function(event) {
+  var msg = event.data && event.data.pluginMessage;
+  if (!msg) return;
+
+  if (msg.type === 'init') {
+    var embedded = msg.fingerprints || { variants: [] };
+    var page = msg.pageName || '';
+
+    if (REMOTE_FP_URL && REMOTE_FP_URL.indexOf('http') === 0) {
+      scopeEl.textContent = '指纹库加载中…';
+      // 加缓存破坏参数，保证每次拉取最新
+      fetch(REMOTE_FP_URL + '?t=' + Date.now())
+        .then(function(r) {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.json();
+        })
+        .then(function(remote) {
+          applyFingerprints(remote, '远端实时指纹库', page);
+        })
+        .catch(function(err) {
+          // 网络失败 / 解析失败 → 降级内嵌数据，提示用户
+          initWithEmbedded(embedded, page);
+          console.warn('[fingerprint] 远端加载失败，已降级到内嵌版本：', err);
+        });
+    } else {
+      initWithEmbedded(embedded, page);
+    }
+  }
+
+  if (msg.type === 'scan-result') {
+    onScanResult(msg.candidates || [], msg.styleIssues || [], msg.iconIssues || [], msg.nonLibraryIssues || [], msg.marginSuggestions || [], msg.layoutSuggestions || [], msg.scope || '');
+  }
+
+  if (msg.type === 'error') {
+    $('btnScan').disabled = false;
+    $('btnScan').textContent = UM('btnRescan');
+    resultsEl.innerHTML = '<div class="empty"><div class="icon">⚠️</div><div>' + esc(msg.message) + '</div></div>';
+  }
+};
+
+parent.postMessage({ pluginMessage: { type: 'ready' } }, '*');
+</script>
+</body>
+</html>

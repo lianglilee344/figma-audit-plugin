@@ -1,0 +1,123 @@
+{
+  "_comment": "组件库特定配置文件。sync_library.js、build.js、code.template.js 均从此处读取业务相关规则。",
+
+  "libraryName": "抖音商城设计语言 2.0",
+
+  "classification": {
+    "_comment": "组件集名称 → 类别映射规则，按顺序匹配，第一个命中的生效。pattern 为正则字符串（不含 /.../ 语法），flags 默认 i（忽略大小写）。",
+    "rules": [
+      { "pattern": "底部导航",                                              "category": "exclude" },
+      { "pattern": "status\\s*bar",                                         "category": "exclude", "flags": "i" },
+      { "pattern": "home\\s*indicator",                                     "category": "exclude", "flags": "i" },
+      { "pattern": "^\\d+px[\\/\\s]",                                       "category": "exclude" },
+      { "pattern": "emoji",                                                  "category": "exclude", "flags": "i" },
+      { "pattern": "logo",                                                   "category": "exclude", "flags": "i" },
+      { "pattern": "插画|illustration",                                      "category": "exclude", "flags": "i" },
+      { "pattern": "封面",                                                   "category": "exclude" },
+      { "pattern": "\\.图",                                                  "category": "exclude" },
+      { "pattern": "空态|空页|空白页|empty\\s*state",                       "category": "exclude", "flags": "i" },
+      { "pattern": "^搜[前中后]$|搜索页|搜索容器",                          "category": "exclude" },
+      { "pattern": "系统键盘|keyboard",                                     "category": "exclude", "flags": "i" },
+      { "pattern": "^联想提示$",                                            "category": "exclude" },
+      { "pattern": "^频道通用$",                                            "category": "exclude" },
+
+      { "pattern": "倒计时",                                                "category": "countdown" },
+      { "pattern": "评分",                                                   "category": "rating" },
+      { "pattern": "货币|金额(?!.*输入)",                                   "category": "currency" },
+
+      { "pattern": "输入",                                                   "category": "input" },
+      { "pattern": "开关|switch",                                           "category": "switch", "flags": "i" },
+      { "pattern": "进度|progress",                                         "category": "progress", "flags": "i" },
+
+      { "pattern": "导航(?!.*底部)",                                        "category": "nav_top" },
+      { "pattern": "tab\\s*栏|tab\\s*bar|一级tab|二级tab",                 "category": "tab", "flags": "i" },
+
+      { "pattern": "toast",                                                  "category": "toast", "flags": "i" },
+      { "pattern": "弹窗|dialog|modal",                                     "category": "dialog", "flags": "i" },
+
+      { "pattern": "券",                                                     "category": "coupon" },
+      { "pattern": "头像|avatar",                                           "category": "avatar", "flags": "i" },
+      { "pattern": "悬浮提示|气泡菜单|tooltip",                            "category": "tooltip", "flags": "i" },
+      { "pattern": "按钮",                                                   "category": "button" },
+      { "pattern": "tag|标签",                                              "category": "tag", "flags": "i" },
+      { "pattern": "卡片|card",                                             "category": "card", "flags": "i" }
+    ],
+    "defaultCategory": "generic"
+  },
+
+  "exemptions": {
+    "_comment": "各类豁免规则的关键词列表，用于 code.template.js 运行时判断。均为正则字符串片段，以 | 拼接后作 test()。",
+    "couponPatterns": ["券", "coupon", "red.?pack", "红包", "优惠", "满减", "折扣", "立减", "积分", "会员.*卡", "卡片.*券"],
+    "systemPatterns": ["状态栏", "status.?bar", "nav.?bar", "导航栏", "home.?bar", "home.?indicator", "键盘", "keyboard", "系统弹窗", "系统.*alert", "safe.?area", "notch", "灵动岛", "dynamic.?island", "system"],
+    "checkoutLexicon": ["购买", "下单", "结算", "去结算", "凑单", "合计", "立即买", "立即购买", "购物车", "小计", "明细", "已优惠", "优惠价"],
+    "promoLexicon": ["满", "减", "折", "省", "特价", "秒杀", "限时", "爆款", "热卖", "新品", "赠品", "到手价", "券后"]
+  },
+
+  "messages": {
+    "_comment": "插件界面文案和检测提示语，支持 {占位符} 替换。",
+    "pluginTitle": "抖音商城设计语言 2.0 组件规范走查",
+    "btnScan": "扫描",
+    "btnScanning": "扫描中...",
+    "btnRescan": "重新扫描",
+    "scanningPlaceholder": "正在扫描...",
+    "emptyLayout": "未发现布局问题",
+    "emptyNone": "未发现问题",
+    "labelNonCompliant": "非规范组件",
+    "labelStandard": "规范",
+    "labelSuggest": "建议",
+    "locateBtn": "定位 ↗",
+
+    "nonLibraryLocal": "使用了本地组件（非共享库）。请替换为抖音商城设计语言 2.0 规范组件",
+    "nonLibraryRemote": "使用了其他组件库的组件（非抖音商城 Design System v2.0）。请替换为规范组件",
+    "iconPrimitive": "检测到手绘矢量图标（约 {n} 个几何图层），未使用 Icon 组件",
+    "iconPrimitiveSuggest": "请用资源库中的 ic_* 图标组件（Instance）整体替换，删除 Vector/Union 等碎图层",
+    "iconMerged": "检测到疑似手绘图标（{hint}），未使用 Icon 组件",
+    "iconMergedSuggest": "请用资源库 ic_* 图标组件（Instance）替换",
+    "iconHintComplex": "单图层但路径复杂（多为合并路径）",
+    "iconHintDefault": "单图层且为默认矢量命名",
+    "textStyleHigh": "PingFang SC {size}px 文字必须绑定设计系统字体样式（未绑定 Text Style）",
+    "textStyleHighMixed": "PingFang SC {size}px 文字存在混合样式（部分字符未绑定 Text Style）",
+    "textStyleHighSuggest": "请在右侧文本属性面板选择设计语言 2.0 对应的字体样式",
+    "textStyleMid": "PingFang SC 文字未绑定全局 Text Style",
+    "textStyleMidMixed": "PingFang SC 文字存在混合样式（部分字符未绑定 Text Style）",
+    "textStyleMidSuggest": "请在文本属性中选择设计系统文字样式",
+    "colorExact": "填充使用裸色，但与样式库颜色一致，请改为颜色样式",
+    "colorNear": "填充使用裸色，与样式库某颜色接近，建议使用颜色样式",
+    "colorRaw": "背景/容器使用自定义裸色（未命中样式库），请确认是否符合规范",
+    "marginInvalid": "{side}边距 {actual}px 不符合栅格规范（应为 {valid}）",
+    "marginSideLeft": "左",
+    "marginSideRight": "右",
+    "layoutEmpty": "空 {type}（无可见子元素），建议删除或确认是否遗留",
+    "layoutRedundant": "Frame 只包含一个 {childType} 且自身无视觉属性（无填充/描边/阴影/圆角），建议合并或删除上层容器",
+    "colorUnboundStyle": "颜色未绑定样式",
+    "textUnboundStyle": "文字未绑定样式",
+    "tabComp": "组件匹配",
+    "tabStyle": "文字 / 颜色",
+    "tabLayout": "布局建议"
+  },
+
+  "thresholds": {
+    "_comment": "置信度阈值，与 build.js config.thresholds 对应。",
+    "match": 55,
+    "confHigh": 75,
+    "confMid": 62,
+    "nonLibMatch": 82
+  },
+
+  "textStyleRules": [
+    {
+      "fontFamilyContains": ["pingfang sc"],
+      "maxFontSize": 32,
+      "score": 90,
+      "messageKey": "textStyleHigh",
+      "mixedMessageKey": "textStyleHighMixed"
+    },
+    {
+      "fontFamilyContains": ["pingfang sc"],
+      "maxFontSize": null,
+      "score": 72,
+      "messageKey": "textStyleMid",
+      "mixedMessageKey": "textStyleMidMixed"
+    }
+  ]
+}
