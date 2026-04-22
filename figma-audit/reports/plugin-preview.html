@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>插件 UI 预览 — 新设计风格</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Figtree:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:          #ffffff;
+  --bg-raise:    #f7f7f5;
+  --bg-card:     #fafaf8;
+  --bg-hover:    #f3f3f0;
+  --border:      #e8e6e0;
+  --border-sub:  #f0eeea;
+  --text-1:      #111010;
+  --text-2:      #6b6862;
+  --text-3:      #a09d97;
+  --red:         #c0392b;
+  --red-dim:     rgba(192,57,43,.09);
+  --amber:       #b5720a;
+  --amber-dim:   rgba(181,114,10,.09);
+  --green:       #1e7d4e;
+  --green-dim:   rgba(30,125,78,.09);
+  --blue:        #2563eb;
+  --blue-dim:    rgba(37,99,235,.08);
+  --ff-display:  'Cormorant Garamond', Georgia, serif;
+  --ff-body:     'Figtree', system-ui, sans-serif;
+  --ff-mono:     'JetBrains Mono', monospace;
+  --radius:      5px;
+  --transition:  180ms cubic-bezier(.4,0,.2,1);
+}
+
+html { font-size: 13px; }
+body {
+  font-family: var(--ff-body);
+  background: #d0cdc8;           /* simulate Figma canvas bg behind plugin */
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 32px 24px;
+  gap: 32px;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Plugin shell — mimics Figma plugin panel ── */
+.plugin {
+  width: 340px;
+  background: var(--bg);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,.18), 0 2px 8px rgba(0,0,0,.10);
+  display: flex;
+  flex-direction: column;
+}
+.plugin-label {
+  font-family: var(--ff-body);
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255,255,255,.6);
+  margin-bottom: 8px;
+  letter-spacing: .04em;
+}
+
+/* ── Header ── */
+.plugin-header {
+  padding: 13px 14px 11px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: var(--bg);
+}
+.plugin-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-1);
+  line-height: 1.3;
+}
+.plugin-scope {
+  font-size: 10px;
+  color: var(--text-3);
+  margin-top: 2px;
+  font-family: var(--ff-mono);
+  letter-spacing: -.01em;
+}
+.btn-scan {
+  font-family: var(--ff-body);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 13px;
+  border: none;
+  background: var(--text-1);
+  color: #fff;
+  border-radius: var(--radius);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: opacity var(--transition);
+  letter-spacing: .01em;
+}
+.btn-scan:hover { opacity: .78; }
+.btn-scan.scanning { background: var(--text-2); }
+
+/* ── Stats strip ── */
+.stats-strip {
+  display: grid;
+  grid-template-columns: 38.4fr 20.6fr 20.6fr 20.6fr;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-raise);
+}
+.stat-main {
+  padding: 9px 10px 16px;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+}
+.stat-main-num {
+  font-family: var(--ff-display);
+  font-size: 52px;
+  font-weight: 300;
+  line-height: 1;
+  color: var(--text-1);
+  letter-spacing: -2px;
+}
+.stat-main-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 4px;
+}
+.stat-sub {
+  padding: 9px 10px 16px;
+  border-right: 1px solid var(--border-sub);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 20px;
+}
+.stat-sub:last-child { border-right: none; }
+.stat-sub-num {
+  font-family: var(--ff-display);
+  font-size: 36px;
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -1px;
+  position: relative;
+  top: -6px;
+}
+.stat-sub-num.red   { color: var(--red); }
+.stat-sub-num.amber { color: var(--amber); }
+.stat-sub-num.green { color: var(--green); }
+.stat-sub-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+/* ── Tabs ── */
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  padding: 0 14px;
+  gap: 0;
+}
+.tab-btn {
+  font-family: var(--ff-body);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  color: var(--text-3);
+  padding: 13px 0;
+  margin-right: 16px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color var(--transition), border-color var(--transition);
+  white-space: nowrap;
+}
+.tab-btn:last-child { margin-right: 0; }
+.tab-btn.active { color: var(--text-1); border-bottom-color: var(--text-1); }
+.tab-count {
+  display: inline-block;
+  margin-left: 4px;
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  color: inherit;
+  opacity: .7;
+}
+
+/* ── Filter chips ── */
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 14px;
+  height: 36px;
+  background: var(--bg);
+}
+.chip {
+  font-family: var(--ff-body);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding: 2px 9px;
+  border: 1px solid var(--border);
+  background: transparent;
+  border-radius: 100px;
+  cursor: pointer;
+  color: var(--text-3);
+  transition: all var(--transition);
+}
+.chip:hover { border-color: var(--text-2); color: var(--text-2); }
+.chip.active { background: var(--text-1); color: #fff; border-color: var(--text-1); }
+
+/* ── Results list ── */
+.results {
+  padding: 0 8px 8px;
+  overflow-y: auto;
+  max-height: 440px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ── Issue card ── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px;
+  animation: fadeUp .15s ease both;
+  transition: background var(--transition);
+}
+.card:hover { background: var(--bg-hover); }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(3px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.card-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+.card-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-1);
+  line-height: 1.35;
+  flex: 1;
+}
+.card-path-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.conf-pill {
+  flex-shrink: 0;
+  font-size: 9px;
+  font-weight: 600;
+  border-radius: 3px;
+  padding: 1px 6px;
+}
+.conf-pill.high  { background: var(--red-dim);   color: var(--red); }
+.conf-pill.mid   { background: var(--amber-dim); color: var(--amber); }
+.conf-pill.low   { background: var(--green-dim); color: var(--green); }
+
+.card-path {
+  font-family: var(--ff-mono);
+  font-size: 9px;
+  color: var(--text-3);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.suggest-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 8px;
+  background: var(--blue-dim);
+  border-radius: 4px;
+  margin-top: 4px;
+  margin-bottom: 0;
+  flex-wrap: wrap;
+}
+.suggest-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--blue);
+  flex-shrink: 0;
+}
+.suggest-arrow { color: var(--blue); font-size: 10px; flex-shrink: 0; }
+.suggest-comp  { color: var(--blue); font-weight: 600; font-size: 10px; }
+
+.reason-row {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  padding: 5px 8px;
+  background: var(--bg-hover);
+  border-radius: 4px;
+  margin-bottom: 0;
+  flex-wrap: wrap;
+}
+.reason-type {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-1);
+  flex-shrink: 0;
+}
+.reason-body {
+  font-size: 10px;
+  color: var(--text-2);
+  flex: 1;
+}
+
+.card-foot { display: none; }
+.card-size {
+  font-family: var(--ff-mono);
+  font-size: 9px;
+  color: var(--text-3);
+  flex-shrink: 0;
+}
+.btn-locate {
+  font-family: var(--ff-body);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--blue);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  opacity: .85;
+  transition: opacity var(--transition);
+}
+.btn-locate:hover { opacity: 1; text-decoration: underline; }
+.btn-locate::after { content: ' ↗'; font-size: 9px; }
+
+/* ── Progress bar ── */
+.progress-bar {
+  padding: 6px 14px;
+  background: var(--bg-raise);
+  border-top: 1px solid var(--border);
+  font-family: var(--ff-mono);
+  font-size: 9px;
+  color: var(--text-3);
+}
+
+/* ── Empty state ── */
+.empty {
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--text-3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.empty-icon { font-size: 22px; opacity: .4; }
+.empty-text { font-size: 11px; }
+
+/* ── Page controls ── */
+.controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.ctrl-btn {
+  font-family: var(--ff-body);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 5px 14px;
+  border: 1px solid rgba(255,255,255,.3);
+  background: rgba(255,255,255,.15);
+  color: #fff;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background .15s;
+}
+.ctrl-btn:hover { background: rgba(255,255,255,.25); }
+.ctrl-btn.on { background: rgba(255,255,255,.35); border-color: rgba(255,255,255,.6); }
+</style>
+</head>
+<body>
+
+<div style="display:flex;flex-direction:column;align-items:center">
+  <div class="plugin-label">插件 UI 新设计风格预览</div>
+
+  <!-- State toggle controls -->
+  <div class="controls">
+    <button class="ctrl-btn on" onclick="showState('empty')">空态</button>
+    <button class="ctrl-btn" onclick="showState('scanning')">扫描中</button>
+    <button class="ctrl-btn" onclick="showState('results')">结果 · 组件</button>
+    <button class="ctrl-btn" onclick="showState('style')">结果 · 样式</button>
+    <button class="ctrl-btn" onclick="showState('layout')">结果 · 布局建议</button>
+  </div>
+
+  <!-- Plugin panel -->
+  <div class="plugin" id="plugin">
+
+    <!-- Header -->
+    <div class="plugin-header">
+      <div>
+        <div class="plugin-title">抖音商城设计语言 2.0 组件走查</div>
+        <div class="plugin-scope" id="scopeText">选中 Frame 后点扫描 · 不选则扫描整页</div>
+      </div>
+      <button class="btn-scan" id="btnScan" onclick="toggleScan()">扫描</button>
+    </div>
+
+    <!-- Stats (hidden in empty/scanning state) -->
+    <div class="stats-strip" id="statsStrip" style="display:none">
+      <div class="stat-main">
+        <div class="stat-main-label">问题总数</div>
+        <div class="stat-main-num" id="statTotal">169</div>
+      </div>
+      <div class="stat-sub">
+        <div class="stat-sub-label">高置信</div>
+        <div class="stat-sub-num red" id="statHigh">68</div>
+      </div>
+      <div class="stat-sub">
+        <div class="stat-sub-label">中置信</div>
+        <div class="stat-sub-num amber" id="statMid">43</div>
+      </div>
+      <div class="stat-sub">
+        <div class="stat-sub-label">低置信</div>
+        <div class="stat-sub-num green" id="statLow">26</div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs" id="tabsEl" style="display:none">
+      <button class="tab-btn active" onclick="switchTab(this,'comp')">组件匹配<span class="tab-count">4</span></button>
+      <button class="tab-btn" onclick="switchTab(this,'style')">文字 / 颜色<span class="tab-count">3</span></button>
+      <button class="tab-btn" onclick="switchTab(this,'layout')">布局建议<span class="tab-count">2</span></button>
+    </div>
+
+    <!-- Filters (hidden in layout tab) -->
+    <div class="filters" id="filtersEl" style="display:none">
+      <button class="chip active">全部</button>
+      <button class="chip">高</button>
+      <button class="chip">中</button>
+      <button class="chip">低</button>
+    </div>
+
+    <!-- Results -->
+    <div class="results" id="resultsEl">
+      <div class="empty">
+        <div class="empty-icon">◎</div>
+        <div class="empty-text">选中 Frame 开始扫描，或扫描整页</div>
+      </div>
+    </div>
+
+    <!-- Progress -->
+    <div class="progress-bar" id="progressEl" style="display:none">正在扫描 · 已处理 18 / 54 个节点…</div>
+
+  </div>
+</div>
+
+<script>
+const MOCK = {
+  comp: [
+    { name: '自定义圆形按钮', path: '猜你喜欢卡 / 操作区 / 自定义圆形按钮', conf: 'high', confLabel: '高', suggestion: '主按钮 / Primary-MD', size: '44 × 44' },
+    { name: '标签容器', path: '猜你喜欢卡 / 标签区 / 标签容器', conf: 'high', confLabel: '高', suggestion: '标签 / 默认-SM', size: '60 × 22' },
+    { name: 'Vector 图形', path: '猜你喜欢卡 / 图标区 / Vector', conf: 'mid', confLabel: '中', suggestion: '图标 / heart-filled', size: '24 × 24' },
+    { name: '旧版徽章', path: '猜你喜欢卡 / 旧版徽章', conf: 'low', confLabel: '低', suggestion: '徽章 / 红色-SM', size: '18 × 18' },
+  ],
+  style: [
+    { name: '商品标题', path: '猜你喜欢卡 / 内容区 / 商品标题', conf: 'high', confLabel: '高', type: '文字样式', detail: '字号14px 未绑定样式', suggest: '正文/Body-MD-粗体' },
+    { name: '价格文本', path: '猜你喜欢卡 / 价格区 / 价格文本', conf: 'mid', confLabel: '中', type: '颜色样式', detail: '#FF3B30 未绑定颜色样式', suggest: '语义/错误色' },
+    { name: '描述文案', path: '猜你喜欢卡 / 描述区 / 描述文案', conf: 'low', confLabel: '低', type: '文字样式', detail: '字号13px Light 未绑定样式', suggest: '正文/Body-SM-Light' },
+  ],
+  layout: [
+    { name: '空容器', path: '猜你喜欢卡 / 空容器', type: '空容器', detail: '该容器无任何子元素，可以考虑删除' },
+    { name: '底部安全区', path: '查单页 / 底部安全区', type: '无意义嵌套', detail: '只有一个子元素且无样式，建议去掉这层嵌套' },
+  ],
+};
+
+function renderComp() {
+  return MOCK.comp.map(i => `
+    <div class="card ${i.conf}">
+      <div class="card-top">
+        <span class="conf-pill ${i.conf}">${i.confLabel}</span>
+        <div class="card-name">${i.name}</div>
+        <button class="btn-locate">定位</button>
+      </div>
+      <div class="card-path-row">
+        <div class="card-path">${i.path}</div>
+        <span class="card-size">${i.size}</span>
+      </div>
+      <div class="suggest-row">
+        <span class="suggest-label">建议</span>
+        <span class="suggest-arrow">→</span>
+        <span class="suggest-comp">${i.suggestion}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderStyle() {
+  return MOCK.style.map(i => `
+    <div class="card ${i.conf}">
+      <div class="card-top">
+        <span class="conf-pill ${i.conf}">${i.confLabel}</span>
+        <div class="card-name">${i.name}</div>
+        <button class="btn-locate">定位</button>
+      </div>
+      <div class="card-path-row">
+        <div class="card-path">${i.path}</div>
+      </div>
+      <div class="reason-row">
+        <span class="reason-type">${i.type}</span>
+        <span class="reason-body">${i.detail}</span>
+      </div>
+      <div class="suggest-row">
+        <span class="suggest-label">建议</span>
+        <span class="suggest-arrow">→</span>
+        <span class="suggest-comp">${i.suggest}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderLayout() {
+  return MOCK.layout.map(i => `
+    <div class="card hint">
+      <div class="card-top">
+        <div class="card-name">${i.name}</div>
+        <button class="btn-locate">定位</button>
+      </div>
+      <div class="card-path-row">
+        <div class="card-path">${i.path}</div>
+      </div>
+      <div class="reason-row">
+        <span class="reason-type">${i.type}</span>
+        <span class="reason-body">${i.detail}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function switchTab(el, tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  const noFilters = tab === 'layout';
+  document.getElementById('filtersEl').style.display = noFilters ? 'none' : 'flex';
+  document.getElementById('resultsEl').style.paddingTop = noFilters ? '8px' : '0';
+  if (tab === 'comp')   document.getElementById('resultsEl').innerHTML = renderComp();
+  if (tab === 'style')  document.getElementById('resultsEl').innerHTML = renderStyle();
+  if (tab === 'layout') document.getElementById('resultsEl').innerHTML = renderLayout();
+}
+
+function showState(state) {
+  document.querySelectorAll('.ctrl-btn').forEach(b => b.classList.remove('on'));
+  event.currentTarget.classList.add('on');
+
+  const stats   = document.getElementById('statsStrip');
+  const tabs    = document.getElementById('tabsEl');
+  const filters = document.getElementById('filtersEl');
+  const results = document.getElementById('resultsEl');
+  const progress= document.getElementById('progressEl');
+  const btn     = document.getElementById('btnScan');
+  const scope   = document.getElementById('scopeText');
+
+  // reset tabs active
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', i===0));
+
+  stats.style.display   = 'none';
+  tabs.style.display    = 'none';
+  filters.style.display = 'none';
+  progress.style.display= 'none';
+  btn.className = 'btn-scan';
+  btn.textContent = '扫描';
+
+  if (state === 'empty') {
+    scope.textContent = '选中 Frame 后点扫描 · 不选则扫描整页';
+    results.innerHTML = `<div class="empty"><div class="empty-icon">◎</div><div class="empty-text">选中 Frame 开始扫描，或扫描整页</div></div>`;
+  }
+  if (state === 'scanning') {
+    scope.textContent = '正在扫描 · 猜你喜欢卡片组…';
+    btn.classList.add('scanning');
+    btn.textContent = '扫描中…';
+    progress.style.display = 'block';
+    results.innerHTML = `<div class="empty"><div class="empty-icon" style="animation:spin 1s linear infinite">↻</div><div class="empty-text">正在扫描，请稍候…</div></div>`;
+  }
+  if (state === 'results') {
+    scope.textContent = '已扫描：猜你喜欢卡片组 · 3 个 Frame';
+    btn.textContent = '重新扫描';
+    stats.style.display = 'grid';
+    tabs.style.display = 'flex';
+    filters.style.display = 'flex';
+    results.innerHTML = renderComp();
+  }
+  if (state === 'style') {
+    scope.textContent = '已扫描：猜你喜欢卡片组 · 3 个 Frame';
+    btn.textContent = '重新扫描';
+    stats.style.display = 'grid';
+    tabs.style.display = 'flex';
+    filters.style.display = 'flex';
+    document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', i===1));
+    results.innerHTML = renderStyle();
+  }
+  if (state === 'layout') {
+    scope.textContent = '已扫描：猜你喜欢卡片组 · 3 个 Frame';
+    btn.textContent = '重新扫描';
+    stats.style.display = 'grid';
+    tabs.style.display = 'flex';
+    filters.style.display = 'none';
+    document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', i===2));
+    results.innerHTML = renderLayout();
+  }
+}
+
+function toggleScan() {}
+
+// boot: show empty state
+</script>
+<style>
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</body>
+</html>
