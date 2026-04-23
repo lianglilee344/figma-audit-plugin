@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>抖音商城设计组件使用周报</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Figtree:wght@300;400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Figtree:wght@300;400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -48,7 +49,7 @@ body {
 /* ── Layout ──────────────────────────────────────────────────────────── */
 .shell {
   display: grid;
-  grid-template-columns: 220px 1fr;
+  grid-template-columns: 270px 1fr;
   grid-template-rows: auto 1fr;
   min-height: 100vh;
 }
@@ -187,7 +188,7 @@ aside {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 20px;
+  padding: 13px 20px;
   cursor: pointer;
   border-left: 2px solid transparent;
   transition: background var(--transition), border-color var(--transition);
@@ -206,9 +207,8 @@ aside {
   flex: 1;
   min-width: 0;
   overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 .nav-badge {
   font-size: 10px;
@@ -335,7 +335,7 @@ main {
   cursor: pointer;
   transition: background var(--transition), border-color var(--transition);
 }
-.file-row:hover { background: var(--bg-hover); border-color: #30303a; }
+.file-row:hover { background: var(--bg-hover); border-color: #30303a; position: relative; z-index: 1; }
 .file-row + .file-row { margin-top: -1px; border-radius: 0; }
 .file-row:first-child { border-radius: var(--radius) var(--radius) 0 0; }
 .file-row:last-child  { border-radius: 0 0 var(--radius) var(--radius); }
@@ -796,15 +796,28 @@ MOCK_DATA['2026-04-06'] = {
 };
 
 // ── DataService ────────────────────────────────────────────────────────────
-// Swap these two function bodies to connect a real API; UI code stays intact.
+// 优先从真实 JSON 文件加载，加载失败时回退到 MOCK 数据（本地开发 / 无数据时）。
+// 真实数据由 aggregate.js 生成：
+//   reports/weeks-index.json   — 周列表
+//   reports/{weekId}.json      — 单周数据
 
 const DataService = {
   async fetchWeekList() {
-    // Future: return fetch('/api/weeks').then(r => r.json())
+    try {
+      const res = await fetch('weeks-index.json');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const list = await res.json();
+      if (Array.isArray(list) && list.length > 0) return list;
+    } catch (e) { /* fall through to mock */ }
     return MOCK_WEEK_LIST;
   },
   async fetchWeek(weekId) {
-    // Future: return fetch(`/api/report/${weekId}`).then(r => r.json())
+    try {
+      const res = await fetch(`${weekId}.json`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (data && data.files) return data;
+    } catch (e) { /* fall through to mock */ }
     return MOCK_DATA[weekId] || null;
   },
 };

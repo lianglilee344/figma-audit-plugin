@@ -253,7 +253,7 @@ node build.js
 
 ---
 
-### Step 7：交付
+### Step 7：交付插件
 
 构建成功后，告知用户：
 
@@ -263,9 +263,103 @@ node build.js
 
 ---
 
+## 第二部分：周报生成流程
+
+> 周报数据来源于服务端扫描指定的设计稿文件，与插件无关，两者共用同一套组件指纹库（`library_fingerprints.json`）。
+
+```
+指定目标设计稿
+      ↓
+  audit.js 扫描（逐文件）
+      ↓
+  aggregate.js 聚合
+      ↓
+  reports/{weekId}.json + reports/weeks-index.json
+      ↓
+  report-demo.html 读取并渲染周报
+```
+
+---
+
+### Step 8：配置扫描目标文件
+
+在 `config.json` 中配置要每周扫描的设计稿文件（参考 `config.example.json`）：
+
+```json
+{
+  "figmaToken": "figd_xxx",
+  "libraryFileKey": "LIBRARY_FILE_KEY",
+  "targetFiles": [
+    { "fileKey": "FileKey1", "name": "首页改版" },
+    { "fileKey": "FileKey2", "name": "商品详情页" }
+  ]
+}
+```
+
+**两种触发模式**：
+
+| 模式 | 说明 | 配置 |
+|---|---|---|
+| 手动 | 直接运行 `node audit.js`，逐一扫描 `targetFiles` | 只需 `targetFiles` |
+| 自动 | 飞书群监听，有人分享 Figma 链接时自动触发扫描 | 额外配置 `feishu` 字段 |
+
+---
+
+### Step 9：运行周报扫描
+
+```bash
+cd figma-audit
+
+# 手动模式：扫描 config.json 里 targetFiles 的所有文件
+node audit.js --json
+
+# 自动模式：启动飞书监听（长期运行，检测到新 Figma 链接自动扫描）
+node feishu_monitor.js
+```
+
+每个文件扫描完成后，会在 `reports/` 目录输出各自的 JSON 结果文件。
+
+---
+
+### Step 10：聚合生成周报数据
+
+```bash
+node aggregate.js
+```
+
+**输出**：
+- `reports/{weekId}.json` — 本周所有文件的扫描结果（weekId 为本周日期，如 `2026-04-20`）
+- `reports/weeks-index.json` — 历史周列表索引，供周报网页切换周使用
+
+**验证**：
+- `reports/weeks-index.json` 中出现了本周条目
+- `reports/{weekId}.json` 中 `files` 数量与扫描文件数一致
+
+---
+
+### Step 11：预览周报网页
+
+```bash
+# 在 reports 目录启动本地 HTTP 服务（必须用 HTTP 服务，不能直接打开 HTML 文件，否则 fetch 被阻止）
+cd figma-audit/reports
+python3 -m http.server 3335
+
+# 浏览器打开
+# http://localhost:3335/report-demo.html
+```
+
+**网页数据加载逻辑**：
+- 优先读取 `reports/weeks-index.json`（真实数据）
+- 若文件不存在或加载失败，自动降级显示内置 mock 数据（不影响界面使用）
+
+**后续每周更新**：只需重复 Step 9 + Step 10，网页刷新后自动展示最新周数据。
+
+---
+
 ## 注意事项
 
 - `scoreMatch()` 权重体系和 `CATEGORY_VETO` 是通用引擎的一部分，**不在 library-config.json 中配置**，无需修改
 - `config.json`（含 Token）**不提交 git**，已在 `.gitignore` 中排除
-- 本 Skill 执行完后，后续每次更新组件库只需重新执行 `node sync_library.js` 和 `node build.js`，无需再次生成 `library-config.json`
+- 插件每次更新组件库只需重新执行 `node sync_library.js` 和 `node build.js`，无需再次生成 `library-config.json`
 - 若组件库有重大改版（组件集命名规律变化），需重新执行本 Skill 的 Step 2～5 更新分类规则
+- 周报网页的布局建议（layout tab）目前在服务端扫描中始终为空，布局问题仍需通过 Figma 插件实时检测

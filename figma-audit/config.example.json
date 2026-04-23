@@ -1,0 +1,42 @@
+{
+  "_comment": "复制此文件为 config.json 并填入真实值。config.json 已在 .gitignore 中，不会提交。",
+
+  "figmaToken": "figd_xxxxxxxxxxxxxxxxxxxx",
+
+  "libraryFileKey": "AbCdEfGhIjKlMnOp",
+
+  "targetFiles": [
+    {
+      "_comment": "手动模式：在此列出每周需要扫描的设计稿文件",
+      "fileKey": "FileKey1",
+      "name": "首页改版"
+    },
+    {
+      "fileKey": "FileKey2",
+      "name": "商品详情页"
+    }
+  ],
+
+  "feishu": {
+    "_comment": "自动模式：配置飞书 App，feishu_monitor.js 会监听指定群里的 Figma 链接并自动触发扫描",
+    "appId": "cli_xxxxxxxxxxxx",
+    "appSecret": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "chatId": "oc_xxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "botToken": "t-xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+
+  "ai": {
+    "_comment": "可选：接入 AI 模型辅助识别组件。不配置则跳过 AI 步骤，只做指纹匹配。",
+    "provider": "openai",
+    "apiKey": "sk-xxxxxxxxxxxxxxxxxxxxxxxx",
+    "model": "gpt-4o"
+  },
+
+  "audit": {
+    "minSuspiciousChildren": 2,
+    "skipPageNames": ["Archive", "🗄 Archive", "Working"],
+    "outputDir": "./reports"
+  },
+
+  "fingerprintUrl": "https://raw.githubusercontent.com/YOUR_ORG/YOUR_REPO/main/fingerprints_slim.json"
+}
